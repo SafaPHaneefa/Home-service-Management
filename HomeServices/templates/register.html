@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <style>
+        /* Add your CSS styling here */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: url("{% static 'img/veed.jpeg' %}");
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .register-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+        }
+
+        .register-container h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333333;
+        }
+
+        .register-container label {
+            display: block;
+            text-align: left;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555555;
+        }
+
+        .register-container input[type="text"],
+        .register-container input[type="email"],
+        .register-container input[type="password"],
+        .register-container select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0 20px 0;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .register-container input[type="text"]:focus,
+        .register-container input[type="email"]:focus,
+        .register-container input[type="password"]:focus,
+        .register-container select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        .register-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .register-container button:hover {
+            background-color: #0056b3;
+        }
+
+        .worker-type-container {
+            display: none;
+        }
+
+        /* Popup styles */
+        .popup {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 20%;
+            transform: translate(-50%, -50%);
+            background-color: #ffffff;
+            padding: 20px;
+            border: 2px solid #cccccc;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            text-align: center;
+            width: 300px;
+        }
+
+        .popup p {
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #333333;
+        }
+
+        .popup button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .popup button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Password strength indicator styles */
+        .strength-indicator {
+            margin: 10px 0;
+            text-align: left;
+        }
+
+        .strength-indicator span {
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .strength-weak {
+            color: #f44336;
+        }
+
+        .strength-medium {
+            color: #ff9800;
+        }
+
+        .strength-strong {
+            color: #4caf50;
+        }
+
+        .show-password-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+
+<body>
+    {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li class="{% if message.tags %}{{ message.tags }}{% endif %}">
+        {{ message }}
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+
+<form method="POST">
+    {% csrf_token %}
+    <div class="register-container">
+        <h2>Sign Up</h2>
+        <form id="registerForm" method="post" action="{% url 'register' %}">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Create Username" name="username" required >
+            <p id="usernameError" style="color: red;"></p>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="Enter Email" name="email" required>
+            <p id="emailError" style="color: red;"></p>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required minlength="6" maxlength="10" oninput="checkPasswordStrength()">        
+                <div class="show-password-container">
+                <label for="showPassword">Show Password</label>
+                <input type="checkbox" id="showPassword" onclick="togglePasswordVisibility()">
+                <id="passwordStrength" class="strength-indicator">
+                <span id="strengthText">Weak</span>
+            </div>
+
+            <label for="role">Role</label>
+            <select id="role" name="role" required onchange="toggleWorkerType()">
+                <option value="user">User</option>
+                <option value="worker">Worker</option>
+            </select>
+
+            <div id="workerTypeContainer" class="worker-type-container">
+                <label for="workerType">Worker Type</label>
+                <select id="workerType" name="workerType">
+                    <option value="">Select a Worker Type</option>
+                    <option value="electrician">Electrician</option>
+                    <option value="plumber">Plumber</option>
+                    <option value="painter">Painter</option>
+                    <option value="carpenter">Carpenter</option>
+                    <option value="cleaner">Cleaner</option>
+                    <option value="interiorDesigner">Interior Designer</option>
+                </select>
+                <p id="workerTypeError" style="color: red;"></p>
+            </div>
+
+            <button type="submit" onclick="return validateForm()">Sign in</button>
+        </form>
+    </div>
+
+    <!-- Popup for validation messages -->
+    <div id="popup" class="popup">
+        <p id="popupMessage"></p>
+        <button onclick="closePopup()">OK</button>
+    </div>
+
+    <script>
+        function toggleWorkerType() {
+            const role = document.getElementById('role').value;
+            const workerTypeContainer = document.getElementById('workerTypeContainer');
+            workerTypeContainer.style.display = (role === 'worker') ? 'block' : 'none';
+        }
+
+        function validateForm() {
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const role = document.getElementById('role').value;
+            const workerType = document.getElementById('workerType').value;
+            const usernameError = document.getElementById('usernameError');
+            const emailError = document.getElementById('emailError');
+            const workerTypeError = document.getElementById('workerTypeError');
+            let isValid = true;
+
+            // Reset errors
+            usernameError.textContent = '';
+            emailError.textContent = '';
+            workerTypeError.textContent = '';
+
+            if (username === '') {
+                usernameError.textContent = 'Username is required.';
+                isValid = false;
+            }
+
+            if (email === '') {
+                emailError.textContent = 'Email is required.';
+                isValid = false;
+            }
+
+            if (role === 'worker' && workerType === '') {
+                workerTypeError.textContent = 'Please select a worker type.';
+                isValid = false;
+            }
+
+            if (isValid) {
+                // Check username and email availability asynchronously
+                isValid = checkAvailability('username', username) && isValid;
+                isValid = checkAvailability('email', email) && isValid;
+            }
+
+            return isValid;
+        }
+
+        function checkAvailability(type, value) {
+            const xhr = new XMLHttpRequest();
+            let isValid = true;
+            xhr.open('POST', '{% url "check_availability" %}', false); // Synchronous request for simplicity
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    const response = JSON.parse(xhr.responseText);
+                    const errorElement = document.getElementById(`${type}Error`);
+                    if (!response.available) {
+                        errorElement.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} already taken.`;
+                        showPopup(`${type.charAt(0).toUpperCase() + type.slice(1)} already taken.`);
+                        isValid = false;
+                    }
+                }
+            };
+            xhr.send(`type=${type}&value=${value}`);
+            return isValid;
+        }
+
+        function showPopup(message) {
+            const popup = document.getElementById('popup');
+            const popupMessage = document.getElementById('popupMessage');
+            popupMessage.textContent = message;
+            popup.style.display = 'block';
+        }
+
+        function closePopup() {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'none';
+        }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const strengthText = document.getElementById('strengthText');
+            
+            let strength = 'Weak';
+            if (password.length > 8) {
+                strength = /[A-Z]/.test(password) && /[0-9]/.test(password) ? 'Strong' : 'Medium';
+            }
+
+            switch (strength) {
+                case 'Weak':
+                    strengthText.textContent = 'Weak';
+                    strengthText.className = 'strength-weak';
+                    break;
+                case 'Medium':
+                    strengthText.textContent = 'Medium';
+                    strengthText.className = 'strength-medium';
+                    break;
+                case 'Strong':
+                    strengthText.textContent = 'Strong';
+                    strengthText.className = 'strength-strong';
+                    break;
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const passwordField = document.getElementById('password');
+            const showPasswordCheckbox = document.getElementById('showPassword');
+            passwordField.type = showPasswordCheckbox.checked ? 'text' : 'password';
+        }
+    </script>
+    <script>
+        {% if messages %}
+          {% for message in messages %}
+            alert("{{ message }}");
+          {% endfor %}
+        {% endif %}
+      </script>
+      
+</body>
+
+</html>

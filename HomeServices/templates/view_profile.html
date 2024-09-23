@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        /* Styling for the profile page */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: url("{% static 'img/background_profile.jpeg' %}"); /* Replace with your image */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .profile-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+            width: 400px;
+            text-align: center;
+        }
+
+        .profile-container h2 {
+            font-size: 28px;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+
+        .profile-info {
+            text-align: left;
+            font-size: 18px;
+            color: #555555;
+            margin-bottom: 20px;
+        }
+
+        .profile-info label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .profile-info p {
+            margin: 0;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+        }
+
+        .btn-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .btn-container a {
+            text-decoration: none;
+            color: #ffffff;
+            background-color: #007bff;
+            padding: 12px 25px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-container a:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="profile-container">
+        <h2>{{ user.username }}'s Profile</h2>
+        <div class="profile-info">
+            <label>Username:</label>
+            <p>{{ user.username }}</p>
+
+            <label>Email:</label>
+            <p>{{ user.email }}</p>
+
+            <label>Role:</label>
+            <p>{{ user.role }}</p>
+
+            {% if user.role == 'worker' %}
+            <label>Worker Type:</label>
+            <p>{{ user.worker_type }}</p>
+            {% endif %}
+        </div>
+
+        <div class="btn-container">
+            <a href="{% url 'update' %}">Edit Profile</a>
+        </div>
+    </div>
+</body>
+
+</html>

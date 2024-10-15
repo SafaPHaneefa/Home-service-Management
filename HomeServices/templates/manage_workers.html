@@ -1,0 +1,60 @@
+{% extends 'admin_dashboard.html' %}
+
+{% block content %}
+<div style="max-width: 80%; margin: 0 auto;">
+    <h2 style="text-align: center; margin-bottom: 20px;">Manage Workers</h2>
+    <div style="text-align: right; margin-bottom: 10px;">
+        <a href="{% url 'add_worker' %}">
+            <button style="padding: 10px 20px; background-color: #28a745; color: #fff; border: none; border-radius: 5px; cursor: pointer;">Add Worker</button>
+        </a>
+    </div>
+    <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+            <tr style="background-color: #f2f2f2;">
+                <th style="padding: 10px;">ID</th>
+                <th style="padding: 10px;">Username</th>
+                <th style="padding: 10px;">Email</th>
+                <th style="padding: 10px;">Work Type</th>
+                <th style="padding: 10px;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for worker in workers %}
+            <tr id="worker-row-{{ worker.id }}">
+                <td style="padding: 10px; border: 1px solid #ddd;">{{ worker.id }}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">{{ worker.username }}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">{{ worker.email }}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">{{ worker.work }}</td>
+                <td style="padding: 10px; border: 1px solid #ddd;">
+                    <button onclick="deactivateWorker({{ worker.id }})" style="padding: 5px 10px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Deactivate</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+    function deactivateWorker(workerId) {
+        if (confirm("Are you sure you want to deactivate this worker?")) {
+            $.ajax({
+                url: '/deactivate_worker/',
+                type: 'POST',
+                data: {
+                    'worker_id': workerId,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $('#worker-row-' + workerId).remove();
+                        alert("Worker deactivated successfully.");
+                    } else {
+                        alert("Error: " + response.message);
+                    }
+                }
+            });
+        }
+    }
+</script>
+{% endblock %}

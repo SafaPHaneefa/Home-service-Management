@@ -1,0 +1,244 @@
+<head>
+    {% load static%}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 60%;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0px 0px 10px 0px #000;
+            border-radius: 5px;
+        }
+        h2 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .form-group {
+            flex: 1 1 45%;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input, select, textarea {
+            padding: 10px;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+        }
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+        textarea {
+            resize: vertical;
+        }
+        .full-width {
+            flex: 1 1 100%;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Disable Sundays and today in the date picker
+            const bookingDateInput = document.getElementById('booking_date');
+            bookingDateInput.addEventListener('change', function () {
+                const selectedDate = new Date(this.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                if (selectedDate.getDay() === 0) { // 0 = Sunday
+                    alert("Bookings cannot be made on Sundays. Please select another date.");
+                    this.value = '';
+                } else if (selectedDate <= today) {
+                    alert("Bookings cannot be made for today or past dates. Please select a future date.");
+                    this.value = '';
+                }
+            });
+
+            // Phone number validation
+            const phoneInput = document.getElementById('phone_number');
+            phoneInput.addEventListener('input', function () {
+                this.value = this.value.replace(/\D/g, '').substring(0, 10); // Only allow digits and limit to 10
+                if (this.value.length > 10) {
+                    alert("Phone number should be exactly 10 digits.");
+                }
+            });
+
+            // State and corresponding district selection
+            const stateSelect = document.getElementById('state');
+            const districtSelect = document.getElementById('district');
+            
+            const stateDistricts = {
+                'Kerala': ['Thiruvananthapuram', 'Ernakulam', 'Kozhikode', 'Kannur'],
+                'Karnataka': ['Bangalore', 'Mysore', 'Mangalore', 'Hubli'],
+                'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Trichy'],
+                'Maharashtra': ['Mumbai', 'Pune', 'Nagpur', 'Nashik'],
+                // Add other states and their districts here
+            };
+
+            stateSelect.addEventListener('change', function () {
+                const selectedState = this.value;
+                const districts = stateDistricts[selectedState] || [];
+                
+                // Clear previous districts
+                districtSelect.innerHTML = '<option value="">Select District</option>';
+                
+                // Populate districts based on the selected state
+                districts.forEach(function (district) {
+                    const option = document.createElement('option');
+                    option.value = district;
+                    option.text = district;
+                    districtSelect.appendChild(option);
+                });
+            });
+
+            // Booking time validation
+            const bookingTimeInput = document.getElementById('booking_time');
+            bookingTimeInput.addEventListener('change', function () {
+                const selectedTime = this.value;
+                const [hours, minutes] = selectedTime.split(':').map(Number);
+
+                if (hours >= 0 && hours < 6) {
+                    alert("Bookings cannot be made between 12 AM and 5 AM. Please select a different time.");
+                    this.value = '';
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-red navbar-light sticky-top px-4 px-lg-5 py-lg-0">
+        <a href="index.html" class="navbar-brand d-flex align-items-center">
+            <h1 class="m-0">
+<img src="{% static 'img\hstar.png' %}" class="me-3" style="height: 100px; width:160px;">            </img>
+            
+            </h1>
+            
+            
+        </a>
+        <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto py-3 py-lg-0">
+                
+        
+                <a href="{% url 'home' %}" class="nav-item nav-link active">Home</a>
+              
+                <a href="{% url 'service' %}" class="nav-item nav-link">Our Services</a>
+    
+  
+
+            
+                <div class="profile-container">
+                    <!-- Display the profile icon -->
+                    <img src="{% static 'img/icon.png' %}" alt="Profile Icon" class="profile-icon" style="width:40px; height:40px; border-radius:50%;">
+                
+                    <!-- Display the username next to the icon -->
+                    <div class="nav-item dropdown">
+                    <span class="username">{{ username }}</span>
+                        <div class="dropdown-menu bg-light m-0">
+                        <a href="{% url 'logout_view' %}" class="nav-item nav-link">Logout</a>
+                        <a href="{% url 'update' %}" class="nav-item nav-link">Update</a>
+                        <a href="{% url 'view_profile' %}" class="nav-item nav-link">View </a>
+
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </nav>
+    <!-- Navbar End -->
+    <div class="container">
+        <h2>Book a Service</h2>
+        <form action="{% url 'bookings' %}" method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="booking_date">Booking Date:</label>
+                <input type="date" id="booking_date" name="booking_date" required>
+            </div>
+
+            <div class="form-group">
+                <label for="booking_time">Booking Time:</label>
+                <input type="time" id="booking_time" name="booking_time" min="06:00" max="23:59" required>
+            </div>
+
+            <div class="form-group">
+                <label for="state">State:</label>
+                <select id="state" name="state" required>
+                    <option value="">Select State</option>
+                    <option value="Kerala">Kerala</option>
+                    <option value="Karnataka">Karnataka</option>
+                    <option value="Tamil Nadu">Tamil Nadu</option>
+                    <option value="Maharashtra">Maharashtra</option>
+                    <!-- Add more states as needed -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="district">District:</label>
+                <select id="district" name="district" required>
+                    <option value="">Select District</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="city">City:</label>
+                <input type="text" id="city" name="city" required>
+            </div>
+
+            <div class="form-group">
+                <label for="street_number">Street Number:</label>
+                <input type="text" id="street_number" name="street_number" required>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="address_line">Address:</label>
+                <input type="text" id="address_line" name="address_line" placeholder="House Name, Pincode, etc." rows="3" required>
+            
+            </div>
+
+            <div class="form-group">
+                <label for="phone_number">Phone Number:</label>
+                <input type="text" id="phone_number" name="phone_number" required>
+            </div>
+
+            <div class="form-group">
+                <label for="work">Select Worker Type:</label>
+                <select id="work" name="work" required>
+                    <option value="">Select Worker Type</option>
+                    {% for work in worker_types %}
+                        <option value="{{ work }}">{{ work }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="work_description">Work Description:</label>
+                <textarea id="work_description" name="work_description" rows="4" placeholder="discribe the work you want to be done" required></textarea>
+            </div>
+
+            <input type="submit" value="Submit Booking">
+        </form>
+    </div>
+</body>

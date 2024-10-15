@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resend OTP</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Link to your CSS file -->
+</head>
+<body>
+    <div class="container">
+        <h2>Resend OTP</h2>
+        <p>An OTP has been sent to your registered email. Please check your inbox.</p>
+        <form method="POST" action="{% url 'resend_otp' %}"> <!-- Update with your URL name -->
+            {% csrf_token %}
+            <button type="submit">Resend OTP</button>
+        </form>
+        <p>After receiving the OTP, <a href="{% url 'verify_otp' %}">click here to verify</a>.</p> <!-- Update with your verify URL name -->
+        <p><a href="{% url 'login' %}">Back to Login</a></p> <!-- Update with your login URL name -->
+    </div>
+</body>
+</html>

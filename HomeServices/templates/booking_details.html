@@ -1,0 +1,11 @@
+{% extends 'admin_dashboard.html' %}
+
+{% block content %}
+<h1>Booking Details for {{ booking.username }}</h1>
+<p><strong>Work:</strong> {{ booking.work }}</p>
+<p><strong>Date:</strong> {{ booking.date }}</p>
+<p><strong>Status:</strong> {{ booking.status }}</p>
+<p><strong>Description:</strong> {{ booking.description }}</p> <!-- Include any other details you want to show -->
+
+<a href="{% url 'manage_bookings' %}">Back to Manage Bookings</a>
+{% endblock %}

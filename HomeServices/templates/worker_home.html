@@ -84,7 +84,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <div class="navbar-nav ms-auto py-3 py-lg-0">
-                <a href="{% url 'index' %}" class="nav-item nav-link active">Home</a>
+                <a href="{% url 'worker_home' %}" class="nav-item nav-link active">Home</a>
                 <a href="{% url 'about' %}" class="nav-item nav-link">About Us</a>
                 <a href="{% url 'service' %}" class="nav-item nav-link">Our Services</a>
                 <a href="{% url 'index' %}" class="nav-item nav-link">Logout</a>
@@ -111,8 +111,9 @@
             <div class="nav-item dropdown">
             <span class="username">{{ username }}</span>
                 <div class="dropdown-menu bg-light m-0">
-                <a href="{% url 'index' %}" class="nav-item nav-link">Logout</a>
-                <a href="{% url 'update' %}" class="nav-item nav-link">Update</a>
+                <a href="{% url 'logout_view' %}" class="nav-item nav-link">Logout</a>
+                <a href="{% url 'update_worker' %}" class="nav-item nav-link">Update</a>
+                <a href="{% url 'view_profile' %}" class="nav-item nav-link">View</a>
                 </div>
             </div>
     </nav>

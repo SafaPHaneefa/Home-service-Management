@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Workers</title>
+</head>
+<body>
+    <h1>Search Workers by Work Type</h1>
+    <form method="post" action="{% url 'search_work' %}">
+        {% csrf_token %}
+        <label for="work">Select Work Type:</label>
+        <select name="work" id="work" required>
+            <option value="">Select a work type</option>
+            {% for role in roles %}
+                <option value="{{ role }}">{{ role }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Search</button>
+    </form>
+
+    {% if workers %}
+        <h2>Available Workers for Selected Work:</h2>
+        <ul>
+            {% for worker in workers %}
+                <li>{{ worker.username }} - {{ worker.email }} - {{ worker.work }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No workers found for the selected work type.</p>
+    {% endif %}
+</body>
+</html>

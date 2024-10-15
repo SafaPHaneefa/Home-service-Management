@@ -6,43 +6,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <style>
-        
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f2f5;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column; /* Ensure vertical alignment */
+        }
+    
+        .navbar.sticky-top {
+            position: fixed; /* Ensure navbar is fixed */
+            top: 0;
+            width: 100%; /* Make sure it spans full width */
+            transition: .5s;
+            background-color: rgba(130, 4, 6, 0.822);
+            z-index: 1000; /* Keep it above other content */
+        }
+    
+        .main-content {
+            flex-grow: 1; /* Allow the main content to grow */
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
             background-image: url("{% static 'img/pexhome.jpeg' %}");
             background-size: cover;
             background-position: center;
-            }
-        
+            padding-top: 60px; /* Space for the fixed navbar */
+        }
+    
+
+        /* Login container styles */
         .login-container {
             background-color: rgba(255, 255, 255, 0.9);
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
             width: 350px;
+            text-align: center;
         }
-        
+
         .login-container img {
             display: block;
-            margin: 0 auto 20px auto; 
-            max-width: 150px; 
+            margin: 0 auto 20px;
+            max-width: 150px;
             height: auto;
         }
-        
+
         .login-container h2 {
             text-align: center;
             margin-bottom: 20px;
             font-size: 24px;
             color: #333;
         }
-        
+
         .login-container input[type="text"],
         .login-container input[type="password"] {
             width: 100%;
@@ -52,7 +75,7 @@
             border-radius: 5px;
             font-size: 16px;
         }
-        
+
         .login-container button {
             width: 100%;
             padding: 12px;
@@ -64,7 +87,7 @@
             font-size: 16px;
             transition: background-color 0.3s ease;
         }
-        
+
         .login-container button:hover {
             background-color: #0056b3;
         }
@@ -84,32 +107,61 @@
 </head>
 
 <body>
-
-    <div class="login-container">
-            <img src="{% static 'img/logo.png' %}"  height="200px" width="200px" alt="Logo">
-        <h2>Welcome</h2>
-
-
-
-        {% if messages %}
-        <div class="alert alert-danger">
-            {% for message in messages %}
-                <p>{{ message }}</p>
-            {% endfor %}
-        </div>
-    {% endif %}  
-
-    <form method="POST" action="{% url 'login' %}">
-        {% csrf_token %}
-        <input type="text" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Login</button>
-        <a href="{% url 'password_reset' %}">Forgot Password?</a>
-
-    </form>
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand-lg bg-red navbar-light sticky-top px-4 px-lg-5 py-lg-0">
+        <a href="index.html" class="navbar-brand d-flex align-items-center">
+            <h1 class="m-0">
+                <img src="{% static 'img\hstar.png' %}" class="me-3" style="height: 100px; width:160px;">
+            </h1>
+        </a>
+        <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto py-3 py-lg-0">
+                <a href="{% url 'index' %}" class="nav-item nav-link active">Home</a>
+                <a href="{% url 'about' %}" class="nav-item nav-link">About Us</a>
+                <a href="{% url 'service' %}" class="nav-item nav-link">Our Services</a>
+                <a href="{% url 'register' %}" class="nav-item nav-link">Register</a>
+                <a href="{% url 'login' %}" class="nav-item nav-link">Login</a>
     
-    </div>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">More</a>
+                    <div class="dropdown-menu bg-light m-0">
+                        <a href="{% url 'feature' %}" class="dropdown-item">Features</a>
+                        <a href="{% url 'appointment' %}" class="dropdown-item">Appointment</a>
+                        <a href="{% url 'team' %}" class="dropdown-item">Our Team</a>
+                        <a href="{% url 'testimonial' %}" class="dropdown-item">Testimonial</a>
+                        <a href="{% url 'error' %}" class="dropdown-item">404 Page</a>
+                    </div>
+                </div>
+                <a href="{% url 'contact' %}" class="nav-item nav-link">Contact Us</a>
+            </div>
+        </div>
+    </nav>
+    <!-- Navbar End -->
 
+    <!-- Main content area (Login form) -->
+    <div class="main-content">
+        <div class="login-container">
+            <img src="{% static 'img/hstar.png' %}" alt="Logo">
+            <h2>Welcome</h2>
+            {% if messages %}
+            <div class="alert alert-danger">
+                {% for message in messages %}
+                <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="email" placeholder="Email" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+                <a href="{% url 'password_reset' %}">Forgot Password?</a>
+            </form>
+        </div>
+    </div>
 </body>
 
 </html>

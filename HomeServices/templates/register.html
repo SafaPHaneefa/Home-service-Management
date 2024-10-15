@@ -155,186 +155,163 @@
 </head>
 
 <body>
-    {% if messages %}
-  <ul class="messages">
-    {% for message in messages %}
-      <li class="{% if message.tags %}{{ message.tags }}{% endif %}">
-        {{ message }}
-      </li>
-    {% endfor %}
-  </ul>
-{% endif %}
 
-<form method="POST">
-    {% csrf_token %}
-    <div class="register-container">
-        <h2>Sign Up</h2>
-        <form id="registerForm" method="post" action="{% url 'register' %}">
-            <label for="username">Username</label>
-            <input type="text" id="username" placeholder="Create Username" name="username" required >
-            <p id="usernameError" style="color: red;"></p>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="register-container">
+            <h2>Sign Up</h2>
+            {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                <li class="{% if message.tags %}{{ message.tags }}{% endif %}">
+                    {{ message }}
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            <form id="registerForm" method="post" action="{% url 'register' %}">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Create Username" name="username" required>
+                <p id="usernameError" style="color: red;"></p>
 
-            <label for="email">Email</label>
-            <input type="email" id="email" placeholder="Enter Email" name="email" required>
-            <p id="emailError" style="color: red;"></p>
+                <label for="email">Email</label>
+                <input type="email" id="email" placeholder="Enter Email" name="email" required>
+                <p id="emailError" style="color: red;"></p>
 
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" required minlength="6" maxlength="10" oninput="checkPasswordStrength()">        
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required minlength="6" maxlength="10"
+                    oninput="checkPasswordStrength()">
                 <div class="show-password-container">
-                <label for="showPassword">Show Password</label>
-                <input type="checkbox" id="showPassword" onclick="togglePasswordVisibility()">
-                <id="passwordStrength" class="strength-indicator">
-                <span id="strengthText">Weak</span>
-            </div>
+                    <label for="showPassword">Show Password</label>
+                    <input type="checkbox" id="showPassword" onclick="togglePasswordVisibility()">
+                    <id="passwordStrength" class="strength-indicator">
+                        <span id="strengthText">Weak</span>
+                </div>
 
-            <label for="role">Role</label>
-            <select id="role" name="role" required onchange="toggleWorkerType()">
-                <option value="user">User</option>
-                <option value="worker">Worker</option>
-            </select>
-
-            <div id="workerTypeContainer" class="worker-type-container">
-                <label for="workerType">Worker Type</label>
-                <select id="workerType" name="workerType">
-                    <option value="">Select a Worker Type</option>
-                    <option value="electrician">Electrician</option>
-                    <option value="plumber">Plumber</option>
-                    <option value="painter">Painter</option>
-                    <option value="carpenter">Carpenter</option>
-                    <option value="cleaner">Cleaner</option>
-                    <option value="interiorDesigner">Interior Designer</option>
+                <label for="role">Role</label>
+                <select id="role" name="role" required onchange="toggleWorkerType()">
+                    <option value="user">User</option>
+                    <option value="worker">Worker</option>
                 </select>
-                <p id="workerTypeError" style="color: red;"></p>
-            </div>
 
-            <button type="submit" onclick="return validateForm()">Sign in</button>
+                <div id="workerTypeContainer" class="worker-type-container">
+                    <label for="workerType">Worker Type</label>
+                    <select id="workerType" name="workerType">
+                        <option value="">Select a Worker Type</option>
+                        <option value="electrician">Electrician</option>
+                        <option value="plumber">Plumber</option>
+                        <option value="painter">Painter</option>
+                        <option value="carpenter">Carpenter</option>
+                        <option value="cleaner">Cleaner</option>
+                        <option value="interiorDesigner">Interior Designer</option>
+                    </select>
+                    <p id="workerTypeError" style="color: red;"></p>
+                </div>
+
+                <button type="submit" onclick="return validateForm()">Sign in</button>
+            </form>
+        </div>
+        <form action="{% url 'verify_otp' %}" method="post">
+            {% csrf_token %}
+            <!-- form fields -->
+            <button type="submit">Verify OTP</button>
         </form>
-    </div>
+        
+        <!-- Popup for validation messages -->
+        <div id="popup" class="popup">
+            <p id="popupMessage"></p>
+            <button onclick="closePopup()">OK</button>
+        </div>
 
-    <!-- Popup for validation messages -->
-    <div id="popup" class="popup">
-        <p id="popupMessage"></p>
-        <button onclick="closePopup()">OK</button>
-    </div>
-
-    <script>
-        function toggleWorkerType() {
-            const role = document.getElementById('role').value;
-            const workerTypeContainer = document.getElementById('workerTypeContainer');
-            workerTypeContainer.style.display = (role === 'worker') ? 'block' : 'none';
-        }
-
-        function validateForm() {
-            const username = document.getElementById('username').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const role = document.getElementById('role').value;
-            const workerType = document.getElementById('workerType').value;
-            const usernameError = document.getElementById('usernameError');
-            const emailError = document.getElementById('emailError');
-            const workerTypeError = document.getElementById('workerTypeError');
-            let isValid = true;
-
-            // Reset errors
-            usernameError.textContent = '';
-            emailError.textContent = '';
-            workerTypeError.textContent = '';
-
-            if (username === '') {
-                usernameError.textContent = 'Username is required.';
-                isValid = false;
+        <script>
+            function toggleWorkerType() {
+                const role = document.getElementById('role').value;
+                const workerTypeContainer = document.getElementById('workerTypeContainer');
+                workerTypeContainer.style.display = (role === 'worker') ? 'block' : 'none';
             }
 
-            if (email === '') {
-                emailError.textContent = 'Email is required.';
-                isValid = false;
-            }
+            // Validate email while typing
+            document.getElementById('email').addEventListener('input', function () {
+                const email = this.value;
+                const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                const emailError = document.getElementById('emailError');
 
-            if (role === 'worker' && workerType === '') {
-                workerTypeError.textContent = 'Please select a worker type.';
-                isValid = false;
-            }
-
-            if (isValid) {
-                // Check username and email availability asynchronously
-                isValid = checkAvailability('username', username) && isValid;
-                isValid = checkAvailability('email', email) && isValid;
-            }
-
-            return isValid;
-        }
-
-        function checkAvailability(type, value) {
-            const xhr = new XMLHttpRequest();
-            let isValid = true;
-            xhr.open('POST', '{% url "check_availability" %}', false); // Synchronous request for simplicity
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.setRequestHeader('X-CSRFToken', '{{ csrf_token }}');
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    const response = JSON.parse(xhr.responseText);
-                    const errorElement = document.getElementById(`${type}Error`);
-                    if (!response.available) {
-                        errorElement.textContent = `${type.charAt(0).toUpperCase() + type.slice(1)} already taken.`;
-                        showPopup(`${type.charAt(0).toUpperCase() + type.slice(1)} already taken.`);
-                        isValid = false;
-                    }
+                if (!emailPattern.test(email)) {
+                    emailError.textContent = 'Invalid email';
+                } else {
+                    emailError.textContent = '';
                 }
-            };
-            xhr.send(`type=${type}&value=${value}`);
-            return isValid;
-        }
+            });
 
-        function showPopup(message) {
-            const popup = document.getElementById('popup');
-            const popupMessage = document.getElementById('popupMessage');
-            popupMessage.textContent = message;
-            popup.style.display = 'block';
-        }
+            function validateForm() {
+                const username = document.getElementById('username').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const role = document.getElementById('role').value;
+                const workerType = document.getElementById('workerType').value;
+                const usernameError = document.getElementById('usernameError');
+                const emailError = document.getElementById('emailError');
+                const workerTypeError = document.getElementById('workerTypeError');
+                let isValid = true;
 
-        function closePopup() {
-            const popup = document.getElementById('popup');
-            popup.style.display = 'none';
-        }
+                // Email validation regex pattern
+                const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-        function checkPasswordStrength() {
-            const password = document.getElementById('password').value;
-            const strengthText = document.getElementById('strengthText');
-            
-            let strength = 'Weak';
-            if (password.length > 8) {
-                strength = /[A-Z]/.test(password) && /[0-9]/.test(password) ? 'Strong' : 'Medium';
+                // Reset errors
+                usernameError.textContent = '';
+                emailError.textContent = '';
+                workerTypeError.textContent = '';
+
+                if (username === '') {
+                    usernameError.textContent = 'Username is required.';
+                    isValid = false;
+                }
+
+                if (email === '') {
+                    emailError.textContent = 'Email is required.';
+                    isValid = false;
+                } else if (!emailPattern.test(email)) {
+                    emailError.textContent = 'Invalid email.';
+                    isValid = false;
+                }
+
+                if (role === 'worker' && workerType === '') {
+                    workerTypeError.textContent = 'Please select a worker type.';
+                    isValid = false;
+                }
+
+                return isValid;
             }
 
-            switch (strength) {
-                case 'Weak':
+            function togglePasswordVisibility() {
+                const password = document.getElementById('password');
+                const showPassword = document.getElementById('showPassword');
+                password.type = showPassword.checked ? 'text' : 'password';
+            }
+
+            function checkPasswordStrength() {
+                const password = document.getElementById('password').value;
+                const strengthText = document.getElementById('strengthText');
+                const strengthIndicator = document.getElementById('passwordStrength');
+
+                if (password.length < 6) {
                     strengthText.textContent = 'Weak';
                     strengthText.className = 'strength-weak';
-                    break;
-                case 'Medium':
+                } else if (password.length <= 8) {
                     strengthText.textContent = 'Medium';
                     strengthText.className = 'strength-medium';
-                    break;
-                case 'Strong':
+                } else {
                     strengthText.textContent = 'Strong';
                     strengthText.className = 'strength-strong';
-                    break;
+                }
             }
-        }
 
-        function togglePasswordVisibility() {
-            const passwordField = document.getElementById('password');
-            const showPasswordCheckbox = document.getElementById('showPassword');
-            passwordField.type = showPasswordCheckbox.checked ? 'text' : 'password';
-        }
-    </script>
-    <script>
-        {% if messages %}
-          {% for message in messages %}
-            alert("{{ message }}");
-          {% endfor %}
-        {% endif %}
-      </script>
-      
+            function closePopup() {
+                const popup = document.getElementById('popup');
+                popup.style.display = 'none';
+            }
+
+        </script>
+    </form>
 </body>
 
 </html>

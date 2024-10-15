@@ -1,0 +1,33 @@
+{% extends 'admin_dashboard.html' %}
+
+{% block content %}
+    <h2>Manage Bookings</h2>
+    {% if bookings %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Booking ID</th>
+                    <th>Booking Date</th>
+                    <th>Address</th>
+                    <th>Worker</th>
+                    <th>Work Description</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                    <tr>
+                        <td>{{ booking.id }}</td>
+                        <td>{{ booking.booking_date }}</td>
+                        <td>{{ booking.address }}</td>
+                        <td>{{ booking.worker }}</td>
+                        <td>{{ booking.work_description }}</td>
+                        <td>{{ booking.status }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No bookings available.</p>
+    {% endif %}
+{% endblock %}

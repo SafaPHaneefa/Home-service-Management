@@ -110,9 +110,20 @@
 
     <!-- Sidebar Navigation -->
     <div class="sidebar">
-        <a href="{% url 'home' %}" class="nav-item">Home</a>
+        <a href="{% url 'worker_home' %}" class="nav-item">Home</a>
         <a href="{% url 'about' %}" class="nav-item">About Us</a>
         <a href="{% url 'service' %}" class="nav-item">Our Services</a>
+
+        <div class="nav-item dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Pages</a>
+            <div class="dropdown-menu bg-light m-0">
+                <a href="{% url 'feature' %}" class="dropdown-item">Features</a>
+                <a href="{% url 'appointment' %}" class="dropdown-item">Appointment</a>
+                <a href="{% url 'team' %}" class="dropdown-item">Our Team</a>
+                <a href="{% url 'testimonial' %}" class="dropdown-item">Testimonial</a>
+                <a href="{% url 'error' %}" class="dropdown-item">404 Page</a>
+            </div>
+        </div>
         <a href="{% url 'contact' %}" class="nav-item">Contact</a>
     </div>
 

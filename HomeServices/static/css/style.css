@@ -71,6 +71,10 @@
 .navbar.sticky-top {
     top: -100px;
     transition: .5s;
+    background-color: rgba(130, 4, 6, 0.822);
+}
+.bg- {
+    background-color: rgba(130, 4, 0.822) !important;
 }
 
 .navbar .navbar-nav .nav-link {

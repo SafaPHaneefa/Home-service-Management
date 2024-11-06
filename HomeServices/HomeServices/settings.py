@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-3&mnakhy8&h(n)t@51a7!go&pg6a@3*@r66b)221@d7rn7s8+0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -43,6 +43,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -74,14 +75,25 @@ WSGI_APPLICATION = 'HomeServices.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'home_db',
+#         'USER': 'root',
+#         'PASSWORD': '',
+#         'HOST': 'localhost',   # or '127.0.0.1'
+#         'PORT': '3306',        # default MySQL port
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'home_db',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',   # or '127.0.0.1'
-        'PORT': '3306',        # default MySQL port
+        'NAME': 'homedb_afternoon',
+        'USER': 'homedb_afternoon',
+        'PASSWORD': 'b3a1e7818bcf7c229161ab0df699429f1ab01e4d',
+        'HOST': 'nw0a4.h.filess.io',   # or '127.0.0.1'
+        'PORT': '3307',        # default MySQL port
     }
 }
 

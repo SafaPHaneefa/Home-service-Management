@@ -5,12 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet"> <!-- Font Awesome -->
     <style>
-        /* Reset some default styles */
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4; /* Light background for contrast */
+            background-color: #f0f2f5;
         }
 
         .container {
@@ -18,28 +20,21 @@
             min-height: 100vh;
         }
 
-        /* Sidebar styles */
         .sidebar {
             width: 250px;
-            background-color: #007BFF; /* Primary color */
+            background-color: #fff;
             padding: 20px;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border-right: 1px solid #ddd;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
         }
 
         .sidebar h2 {
-            text-align: center;
-            color: white;
+            color: #333;
             margin-bottom: 30px;
         }
 
         .sidebar ul {
             list-style: none;
             padding: 0;
-            width: 100%;
         }
 
         .sidebar ul li {
@@ -47,28 +42,63 @@
         }
 
         .sidebar ul li a {
-            color: white; /* White text for contrast */
+            color: #333;
             text-decoration: none;
             font-weight: bold;
             padding: 10px;
             display: block;
             transition: background-color 0.3s;
-            border-radius: 5px; /* Rounded corners */
+            border-radius: 5px;
         }
 
         .sidebar ul li a:hover, .sidebar ul li a.active {
-            background-color: #0056b3; /* Darker shade on hover and active */
+            background-color: #e6e6e6;
         }
 
-        /* Main content styling */
         .main-content {
             flex: 1;
             padding: 20px;
-            background-color: white; /* White background for content */
-            border-radius: 5px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-            margin: 20px;
         }
+
+        .function-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .function-button {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: calc(33.33% - 14px);
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+            transition: box-shadow 0.3s, transform 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .function-button:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+        }
+
+        .function-button h3 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            color: #333; /* Change to a suitable color */
+        }
+
+        .function-button p {
+            color: #777; /* Change to a suitable color */
+            margin: 0;
+        }
+
+        .function-button:nth-child(1) { background-color: #4e73df; }
+        .function-button:nth-child(2) { background-color: #1cc88a; }
+        .function-button:nth-child(3) { background-color: #36b9cc; }
+        .function-button:nth-child(4) { background-color: #f6c23e; }
+        .function-button:nth-child(5) { background-color: #e74a3b; }
 
         footer {
             text-align: center;
@@ -79,33 +109,73 @@
     </style>
 </head>
 <body>
-    <!-- Check if user is authenticated and has admin role -->
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand-lg bg-red navbar-light sticky-top px-4 px-lg-5 py-lg-0">
+        <a href="index.html" class="navbar-brand d-flex align-items-center">
+            <h1 class="m-0">
+                <img src="{% static 'img/hstar.png' %}" class="me-3" style="height: 100px; width:160px;">
+            </h1>
+        </a>
+        <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto py-3 py-lg-0">
+            </div>
+        </div>
+    </nav>
+    <!-- Navbar End -->
+
     {% if request.session.is_admin %} 
         <div class="container">
             <!-- Sidebar -->
             <div class="sidebar">
                 <h2>Admin Dashboard</h2>
                 <ul>
-                    <li><a href="{% url 'manage_users' %}" class="{% if request.path == '/admin/manage-users/' %}active{% endif %}">Manage Users</a></li>
-                    <li><a href="{% url 'manage_workers' %}" class="{% if request.path == '/admin/manage-workers/' %}active{% endif %}">Manage Workers</a></li>
-                    <li><a href="{% url 'add_worker' %}" class="{% if request.path == '/admin/add-worker/' %}active{% endif %}">Add Worker</a></li>                    <li><a href="{% url 'logout' %}">Logout</a></li> <!-- New link for logging out -->
-                    <li><a href="{% url 'manage_bookings' %}" class="{% if request.path == '/admin/manage-bookings/' %}active{% endif %}">Manage Bookings</a></li> <!-- New link for managing bookings -->
-
+                    <li><a href="#" class="active">Dashboard</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
                 </ul>
             </div>
 
             <!-- Main Content Area -->
             <div class="main-content">
+                <div class="function-buttons">
+                    <a href="{% url 'manage_users' %}" class="function-button" id="manage_users">
+                        <i class="fas fa-users"></i> <!-- Icon for Manage Users -->
+                        <h3>Manage Users</h3>
+                        <p>View and manage user accounts</p>
+                    </a>
+                    <a href="{% url 'manage_workers' %}" class="function-button">
+                        <i class="fas fa-user-tie"></i> <!-- Icon for Manage Workers -->
+                        <h3>Manage Workers</h3>
+                        <p>Oversee worker profiles and assignments</p>
+                    </a>
+                    <a href="{% url 'add_service' %}" class="function-button">
+                        <i class="fas fa-plus-circle"></i> <!-- Icon for Add Service -->
+                        <h3>Add Service</h3>
+                        <p>Create new services for customers</p>
+                    </a>
+                    <a href="{% url 'manage_bookings' %}" class="function-button">
+                        <i class="fas fa-calendar-check"></i> <!-- Icon for Manage Bookings -->
+                        <h3>Manage Bookings</h3>
+                        <p>View and manage customer bookings</p>
+                    </a>
+                    <a href="{% url 'add_announcement' %}" class="function-button">
+                        <i class="fas fa-bullhorn"></i> <!-- Icon for Add Announcement -->
+                        <h3>Add Announcement</h3>
+                        <p>Create and publish announcements</p>
+                    </a>
+                </div>
+
                 {% block content %}
                 {% endblock %}
             </div>
         </div>
 
         <footer>
-            <p>&copy; {{ current_year }} Your Company Name</p> <!-- Add your company name -->
+            <p>&copy; {{ current_year }} Your Company Name</p>
         </footer>
     {% else %}
-        <!-- Redirect to login if not authenticated or not admin -->
         <script>window.location.href = "{% url 'admin_login' %}";</script>
     {% endif %}
 </body>

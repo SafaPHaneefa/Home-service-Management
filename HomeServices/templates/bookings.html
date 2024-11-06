@@ -1,72 +1,282 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
 <head>
-    {% load static%}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Poppins:wght@600;700&display=swap" rel="stylesheet"> 
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <style>
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            margin: 0;
+            padding-top:0.6px; /* Adjust based on your navbar height */
+            min-height: 100vh;
+            position: relative;
         }
-        .container {
-            width: 60%;
-            margin: auto;
-            background: #fff;
+
+        .background-slideshow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        /* Navbar Styling */
+        .navbar-custom {
+            background-color: #b33067;
+            padding: 0;
+        }
+        .navbar-nav .nav-item {
+            padding: 0 10px;
+        }
+        .navbar-nav .nav-link {
+            color: #000000;
+            font-weight: 500;
+        }
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link.active {
+            color: #007bff;
+        }
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .username {
+            color: #000000;
+            font-weight: 500;
+        }
+
+        /* Form Container */
+        .form-container {
+            width: 50%;
+            max-width: 1200px;
+            margin: 20px auto 50px auto;
+            background-image: url('{% static "img/booking.jpg" %}');
+            background-size: cover;
+            background-position: center;
             padding: 20px;
-            box-shadow: 0px 0px 10px 0px #000;
-            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
-        h2 {
+
+        .form-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white overlay */
+            border-radius: 8px;
+            z-index: -1;
+        }
+
+        .form-container:hover {
+            transform: scale(1.01);
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-heading {
             text-align: center;
+            font-size: 26px;
+            color: #333;
+            margin-bottom: 20px;
         }
+
         form {
             display: flex;
             flex-wrap: wrap;
         }
-        .form-group {
+
+        .form-group-custom {
             flex: 1 1 45%;
-            padding: 10px;
+            padding: 5px;
             display: flex;
             flex-direction: column;
+            margin-bottom: 20px;
         }
+
         label {
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
+
         input, select, textarea {
             padding: 10px;
-            border-radius: 3px;
+            border-radius: 5px;
             border: 1px solid #ccc;
             font-size: 16px;
+            transition: border-color 0.3s;
+            background-color: #ede0a9; /* Darker yellow background */
         }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #28a745;
+            outline: none;
+        }
+
         input[type="submit"] {
             background-color: #28a745;
-            color: white;
+            color: rgb(220, 217, 138);
             border: none;
             cursor: pointer;
-            margin-top: 20px;
-            width: 100%;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 25px; /* Makes it oval */
+            width: auto; /* Allows the button to shrink */
+            transition: background-color 0.3s;
+            display: block; /* Centers the button */
+            margin: 20px auto 0; /* Adds some top margin and centers */
         }
+
         input[type="submit"]:hover {
-            background-color: #218838;
+            background-color: #216830;
         }
+
         textarea {
             resize: vertical;
         }
+
         .full-width {
             flex: 1 1 100%;
         }
+
+        .form-group-full {
+            flex: 1 1 100%;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .form-group-half {
+            flex: 0 0 48%;
+        }
+
+        .phone-input-container {
+            display: flex;
+            align-items: center;
+        }
+        .worker-profile-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        
+        .phone-prefix {
+            padding: 10px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-right: none;
+            border-radius: 5px 0 0 5px;
+        }
+
+        #phone_number {
+            border-left: none;
+            border-radius: 0 5px 5px 0;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        /* Book Now Button Styling */
+        #submit-booking {
+            background: linear-gradient(to right, #28a745, #218838);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+            margin: 20px auto;
+            display: none;
+            width: 200px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #submit-booking:hover {
+            background: linear-gradient(to right, #218838, #1e7e34);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        #submit-booking:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(40, 167, 69, 0.2);
+        }
+
+        /* Add icon to button */
+        #submit-booking::before {
+            content: "\f274"; /* Calendar icon from Font Awesome */
+            font-family: "Font Awesome 5 Free";
+            margin-right: 10px;
+        }
+
+        /* Button container for centering */
+        .button-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
     </style>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Disable Sundays and today in the date picker
             const bookingDateInput = document.getElementById('booking_date');
             bookingDateInput.addEventListener('change', function () {
                 const selectedDate = new Date(this.value);
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
 
-                if (selectedDate.getDay() === 0) { // 0 = Sunday
+                if (selectedDate.getDay() === 0) {
                     alert("Bookings cannot be made on Sundays. Please select another date.");
                     this.value = '';
                 } else if (selectedDate <= today) {
@@ -75,35 +285,32 @@
                 }
             });
 
-            // Phone number validation
             const phoneInput = document.getElementById('phone_number');
             phoneInput.addEventListener('input', function () {
-                this.value = this.value.replace(/\D/g, '').substring(0, 10); // Only allow digits and limit to 10
-                if (this.value.length > 10) {
-                    alert("Phone number should be exactly 10 digits.");
+                this.value = this.value.replace(/\D/g, '').substring(0, 10);
+                if (this.value.length === 10) {
+                    this.setCustomValidity('');
+                } else {
+                    this.setCustomValidity('Phone number must be 10 digits');
                 }
             });
 
-            // State and corresponding district selection
             const stateSelect = document.getElementById('state');
             const districtSelect = document.getElementById('district');
-            
+
             const stateDistricts = {
-                'Kerala': ['Thiruvananthapuram', 'Ernakulam', 'Kozhikode', 'Kannur'],
+                'Kerala': ['Thiruvananthapuram', 'Ernakulam', 'Kozhikode','Alappuzha','Kollam','Kottayam','Pathanamthitta','Kasargod','Kannur','Malappuram','Palakkad','Thrissur','Wayanad'],
                 'Karnataka': ['Bangalore', 'Mysore', 'Mangalore', 'Hubli'],
                 'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Trichy'],
                 'Maharashtra': ['Mumbai', 'Pune', 'Nagpur', 'Nashik'],
-                // Add other states and their districts here
             };
 
             stateSelect.addEventListener('change', function () {
                 const selectedState = this.value;
                 const districts = stateDistricts[selectedState] || [];
-                
-                // Clear previous districts
+
                 districtSelect.innerHTML = '<option value="">Select District</option>';
-                
-                // Populate districts based on the selected state
+
                 districts.forEach(function (district) {
                     const option = document.createElement('option');
                     option.value = district;
@@ -112,7 +319,6 @@
                 });
             });
 
-            // Booking time validation
             const bookingTimeInput = document.getElementById('booking_time');
             bookingTimeInput.addEventListener('change', function () {
                 const selectedTime = this.value;
@@ -126,119 +332,283 @@
         });
     </script>
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-lg bg-red navbar-light sticky-top px-4 px-lg-5 py-lg-0">
-        <a href="index.html" class="navbar-brand d-flex align-items-center">
+    <div class="background-slideshow">
+        <div class="slide" style="background-image: url('{% static 'img/work22.jpg' %}');"></div>
+        <div class="slide" style="background-image: url('{% static 'img/wood1.jpg' %}');"></div>
+        <div class="slide" style="background-image: url('{% static 'img/wood23.jpg' %}');"></div>
+        <div class="slide" style="background-image: url('{% static 'img/washing.jpg' %}');"></div>
+        <div class="slide" style="background-image: url('{% static 'img/paint.jpeg' %}');"></div>
+    </div>
+
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand-lg bg-white navbar-light sticky-top px-4 px-lg-5 py-lg-0">
+        <a href="{% url 'home' %}" class="navbar-brand d-flex align-items-center">
             <h1 class="m-0">
-<img src="{% static 'img\hstar.png' %}" class="me-3" style="height: 100px; width:160px;">            </img>
-            
+                <img src="{% static 'img/hstar.png' %}" alt="Home Star" style="height: 100px; width:160px;">
             </h1>
-            
-            
         </a>
         <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <div class="navbar-nav ms-auto py-3 py-lg-0">
-                
-        
-                <a href="{% url 'home' %}" class="nav-item nav-link active">Home</a>
-              
+                <a href="{% url 'home' %}" class="nav-item nav-link">Home</a>
+                <a href="{% url 'about' %}" class="nav-item nav-link">About Us</a>
                 <a href="{% url 'service' %}" class="nav-item nav-link">Our Services</a>
-    
-  
-
-            
-                <div class="profile-container">
-                    <!-- Display the profile icon -->
-                    <img src="{% static 'img/icon.png' %}" alt="Profile Icon" class="profile-icon" style="width:40px; height:40px; border-radius:50%;">
-                
-                    <!-- Display the username next to the icon -->
-                    <div class="nav-item dropdown">
-                    <span class="username">{{ username }}</span>
-                        <div class="dropdown-menu bg-light m-0">
-                        <a href="{% url 'logout_view' %}" class="nav-item nav-link">Logout</a>
-                        <a href="{% url 'update' %}" class="nav-item nav-link">Update</a>
-                        <a href="{% url 'view_profile' %}" class="nav-item nav-link">View </a>
-
-                        </div>
+                <a href="{% url 'booking' %}" class="nav-item nav-link active">Book Service</a>
+                <a href="{% url 'feedback_form' %}" class="nav-item nav-link">Feedback</a>
+                <a href="{% url 'search_work' %}" class="nav-item nav-link">Search Work</a>
+                <div class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <img src="{% static 'img/icon.png' %}" alt="Profile Icon" class="profile-icon">
+                        <span class="username">{{ username }}</span>
+                    </a>
+                    <div class="dropdown-menu bg-light m-0">
+                        <a href="{% url 'logout_view' %}" class="dropdown-item">Logout</a>
+                        <a href="{% url 'update' %}" class="dropdown-item">Update</a>
+                        <a href="{% url 'view_profile' %}" class="dropdown-item">View Profile</a>
                     </div>
+                </div>
             </div>
         </div>
     </nav>
     <!-- Navbar End -->
-    <div class="container">
-        <h2>Book a Service</h2>
-        <form action="{% url 'bookings' %}" method="post">
-            {% csrf_token %}
 
-            <div class="form-group">
-                <label for="booking_date">Booking Date:</label>
-                <input type="date" id="booking_date" name="booking_date" required>
-            </div>
-
-            <div class="form-group">
-                <label for="booking_time">Booking Time:</label>
-                <input type="time" id="booking_time" name="booking_time" min="06:00" max="23:59" required>
-            </div>
-
-            <div class="form-group">
-                <label for="state">State:</label>
-                <select id="state" name="state" required>
-                    <option value="">Select State</option>
-                    <option value="Kerala">Kerala</option>
-                    <option value="Karnataka">Karnataka</option>
-                    <option value="Tamil Nadu">Tamil Nadu</option>
-                    <option value="Maharashtra">Maharashtra</option>
-                    <!-- Add more states as needed -->
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="district">District:</label>
-                <select id="district" name="district" required>
-                    <option value="">Select District</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="city">City:</label>
-                <input type="text" id="city" name="city" required>
-            </div>
-
-            <div class="form-group">
-                <label for="street_number">Street Number:</label>
-                <input type="text" id="street_number" name="street_number" required>
-            </div>
-
-            <div class="form-group full-width">
-                <label for="address_line">Address:</label>
-                <input type="text" id="address_line" name="address_line" placeholder="House Name, Pincode, etc." rows="3" required>
-            
-            </div>
-
-            <div class="form-group">
-                <label for="phone_number">Phone Number:</label>
-                <input type="text" id="phone_number" name="phone_number" required>
-            </div>
-
-            <div class="form-group">
-                <label for="work">Select Worker Type:</label>
-                <select id="work" name="work" required>
-                    <option value="">Select Worker Type</option>
-                    {% for work in worker_types %}
-                        <option value="{{ work }}">{{ work }}</option>
+    <div class="form-container">
+        <h2 class="form-heading">Book a Service</h2>
+        {% if messages %}
+        <div class="alert alert-danger">
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-md-4">
+                <h3>Available Workers</h3>
+                <div id="worker-list">
+                    {% for worker in available_workers %}
+                        <div class="worker-item">
+                            {% if worker.profile_image %}
+                               <img src="{{ worker.profile_image.url }}" alt="{{ worker.worker_name }}" class="worker-profile-img">
+                            {% else %}
+                               <img src="{% static 'img/default_profile.png' %}" alt="Default Profile" class="worker-profile-img">
+                            {% endif %}
+                            <h4>{{ worker.worker_name }}</h4>
+                            <p>Rating: {{ worker.rating }}</p>
+                            <p>Service: {{ worker.services }}</p>
+                            <p>Status: 
+                                {% if worker.status == 'Available' %}
+                                    <span class="badge bg-success">Available</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Booked</span>
+                                {% endif %}
+                            </p>
+                            {% if worker.status == 'Available' %}
+                                <button class="btn btn-primary select-worker" data-worker-id="{{ worker.id }}">Select</button>
+                            {% endif %}
+                        </div>
+                    {% empty %}
+                        <p>No workers available for the selected criteria.</p>
                     {% endfor %}
-                </select>
+                </div>
             </div>
+            <div class="col-md-8">
+                <!-- Your existing booking form here -->
+                <form method="post" id="booking-form">
+                    {% csrf_token %}
+                    <div class="form-row">
+                        <div class="form-group-custom">
+                            <label for="booking_date">Booking Date:</label>
+                            <input type="date" id="booking_date" name="booking_date" required>
+                        </div>
 
-            <div class="form-group full-width">
-                <label for="work_description">Work Description:</label>
-                <textarea id="work_description" name="work_description" rows="4" placeholder="discribe the work you want to be done" required></textarea>
+                        <div class="form-group-custom">
+                            <label for="booking_time">Booking Time:</label>
+                            <input type="time" id="booking_time" name="booking_time" min="06:00" max="23:59" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group-custom">
+                            <label for="state">State:</label>
+                            <select id="state" name="state" required>
+                                <option value="">Select State</option>
+                                <option value="Kerala">Kerala</option>
+                                <option value="Karnataka">Karnataka</option>
+                                <option value="Tamil Nadu">Tamil Nadu</option>
+                                <option value="Maharashtra">Maharashtra</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="district">District:</label>
+                            <select id="district" name="district" required>
+                                <option value="">Select District</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group-custom">
+                            <label for="work">Services:</label>
+                            <select id="work" name="work" required>
+                                <option value="">Select Service</option>
+                                {% for work in worker_types %}
+                                    <option value="{{ work }}">{{ work }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="street_number">Street Number:</label>
+                            <input type="text" id="street_number" name="street_number" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group-custom">
+                            <label for="phone_number">Phone Number:</label>
+                            <div class="phone-input-container">
+                                <span class="phone-prefix">+91</span>
+                                <input type="tel" id="phone_number" name="phone_number" required pattern="[0-9]{10}" title="Phone number must be 10 digits">
+                            </div>
+                        </div>
+                        <div class="form-group-custom">
+                            <label for="city">City:</label>
+                            <input type="text" id="city" name="city" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group-custom">
+                            <label for="address_line">Address:</label>
+                            <textarea id="address_line" name="address_line" rows="3" placeholder="House Name, Pincode, etc." required></textarea>
+                        </div>
+
+                        <div class="form-group-custom">
+                            <label for="work_description">Work Description:</label>
+                            <textarea id="work_description" name="work_description" rows="3" placeholder="Describe the work you want done" required></textarea>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="selected_worker" id="selected-worker-input">
+                    <div class="button-container">
+                        <button type="submit" id="submit-booking" style="display: none;">Book Now</button>
+                    </div>
+                </form>
             </div>
-
-            <input type="submit" value="Submit Booking">
-        </form>
+        </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Background slideshow
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.slide');
+            let currentSlide = 0;
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    if (i === index) {
+                        slide.classList.add('active');
+                    } else {
+                        slide.classList.remove('active');
+                    }
+                });
+            }
+
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % slides.length;
+                showSlide(currentSlide);
+            }
+
+            showSlide(currentSlide);
+            setInterval(nextSlide, 5000); // Change slide every 5 seconds
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('booking-form');
+            const workerList = document.getElementById('worker-list');
+            const selectedWorkerInput = document.getElementById('selected-worker-input');
+            const submitButton = document.getElementById('submit-booking');
+
+            // Handle form submission (Book Now button)
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (!selectedWorkerInput.value) {
+                    alert('Please select a worker before booking.');
+                    return;
+                }
+
+                // Get the form data
+                const formData = new FormData(form);
+                formData.append('submit_booking', 'true'); // Add flag to identify booking submission
+
+                // Submit to bookings URL for actual booking
+                fetch('{% url "bookings" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Booking successful!');
+                        window.location.href = '{% url "booking" %}';
+                    } else {
+                        alert(data.message || 'Booking failed. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+            });
+
+            // Handle worker list updates
+            function updateWorkerList() {
+                const formData = new FormData(form);
+                formData.append('update_workers', 'true');
+
+                // Submit to booking URL for worker list updates
+                fetch('{% url "booking" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = html;
+                    const newWorkerList = tempDiv.querySelector('#worker-list');
+                    if (newWorkerList) {
+                        workerList.innerHTML = newWorkerList.innerHTML;
+                    }
+                });
+            }
+
+            // Handle worker selection
+            workerList.addEventListener('click', function(e) {
+                if (e.target.classList.contains('select-worker')) {
+                    const workerId = e.target.getAttribute('data-worker-id');
+                    selectedWorkerInput.value = workerId;
+                    submitButton.style.display = 'block';
+                }
+            });
+
+            // Add event listeners for worker list updates
+            ['booking_date', 'state', 'district', 'work'].forEach(function(fieldId) {
+                document.getElementById(fieldId).addEventListener('change', updateWorkerList);
+            });
+        });
+    </script>
 </body>
+</html>

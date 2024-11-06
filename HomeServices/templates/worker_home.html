@@ -30,6 +30,25 @@
 
     <!-- Template Stylesheet -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <style>
+        .sidebar {
+            background-color: :blank /* Transparent black */
+            color: white;
+            height: 100vh;
+            width: 200px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            padding-top: 160px; /* Adjust based on your navbar height */
+        }
+        .sidebar .nav-link {
+            color: rgb(190, 169, 185);
+        }
+        .sidebar .nav-link:hover {
+            color: hsl(65, 99%, 52%);
+        }
+    </style>
 </head>
 
 
@@ -57,26 +76,18 @@
                     <small>Mon - Fri : 09 AM - 09 PM</small>
                 </div>
             </div>
-            <div class="col-lg-5 px-5 text-end">
-                <div class="h-100 d-inline-flex align-items-center">
-                    <a class="btn btn-square border-end border-start" href=""><i class="fab fa-facebook-f"></i></a>
-                    <a class="btn btn-square border-end" href=""><i class="fab fa-twitter"></i></a>
-                    <a class="btn btn-square border-end" href=""><i class="fab fa-linkedin-in"></i></a>
-                    <a class="btn btn-square border-end" href=""><i class="fab fa-instagram"></i></a>
-                </div>
-            </div>
         </div>
     </div>
     <!-- Topbar End -->
 
     <!-- Navbar Start -->
-    <nav class="navbar navbar-expand-lg bg-white navbar-light sticky-top px-4 px-lg-5 py-lg-0">
+    <nav class="navbar navbar-expand-lg bg-red navbar-light sticky-top px-4 px-lg-5 py-lg-0">
         <a href="index.html" class="navbar-brand d-flex align-items-center">
             <h1 class="m-0">
-                <img src="{% static 'img\logo.png' %}" class="me-3" style="height: 80px; width:120px;">
-            </img>
+        <img src="{% static 'img\hstar.png' %}" class="me-3" style="height: 100px; width:160px;">            </img>
             
-            </h1>
+        </h1>
+            
             
         </a>
         <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
@@ -84,41 +95,53 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <div class="navbar-nav ms-auto py-3 py-lg-0">
+                
+        
                 <a href="{% url 'worker_home' %}" class="nav-item nav-link active">Home</a>
-                <a href="{% url 'about' %}" class="nav-item nav-link">About Us</a>
                 <a href="{% url 'service' %}" class="nav-item nav-link">Our Services</a>
-                <a href="{% url 'index' %}" class="nav-item nav-link">Logout</a>
+                <a href="{% url 'feedback_form' %}" class="nav-item nav-link">Feedback</a>
+                <div class="profile-container">
+                    <!-- Display the profile icon -->
+                    <img src="{% static 'img/icon.png' %}" alt="Profile Icon" class="profile-icon" style="width:40px; height:40px; border-radius:50%;">
+                
+                    <!-- Display the username next to the icon -->
+                    <div class="nav-item dropdown">
+                    <span class="username">{{ username }}</span>
+                        <div class="dropdown-menu bg-light m-0">
+                        <a href="{% url 'logout_view' %}" class="nav-item nav-link">Logout</a>
+                        
+                        
+                    
 
-
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
-                    <div class="dropdown-menu bg-light m-0">
-                        <a href="{% url 'feature' %}" class="dropdown-item">Features</a>
-                        <a href="{% url 'appointment' %}" class="dropdown-item">Appointment</a>
-                        <a href="{% url 'team' %}" class="dropdown-item">Our Team</a>
-                        <a href="{% url 'testimonial' %}" class="dropdown-item">Testimonial</a>
-                        <a href="{% url 'error' %}" class="dropdown-item">404 Page</a>
+                        </div>
                     </div>
-                </div>
-                <a href="{% url 'contact' %}" class="nav-item nav-link">Contact Us</a>
             </div>
         </div>
-        <div class="profile-container">
-            <!-- Display the profile icon -->
-            <img src="{% static 'img/w2.jpg' %}" alt="Profile Icon" class="profile-icon" style="width:40px; height:40px; border-radius:50%;">
-        
-            <!-- Display the username next to the icon -->
-            <div class="nav-item dropdown">
-            <span class="username">{{ username }}</span>
-                <div class="dropdown-menu bg-light m-0">
-                <a href="{% url 'logout_view' %}" class="nav-item nav-link">Logout</a>
-                <a href="{% url 'update_worker' %}" class="nav-item nav-link">Update</a>
-                <a href="{% url 'view_profile' %}" class="nav-item nav-link">View</a>
-                </div>
-            </div>
     </nav>
     <!-- Navbar End -->
-
+    <div class="container-fluid">
+        <div class="row">
+          <!-- Sidebar Start -->
+           
+            <div class="col-md-3 bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'view_profile' %}">View Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'update_worker' %}">Update</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="">View Bookings</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="">Payments</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Sidebar End -->
     <!-- Carousel Start -->
     <div class="container-fluid p-0 mb-5 wow fadeIn" data-wow-delay="0.1s">
         <div id="header-carousel" class="carousel slide" data-bs-ride="carousel">
@@ -130,7 +153,7 @@
                             <div class="row justify-content-center">
                                 <div class="col-12 col-lg-10">
                                     <h5 class="text-light text-uppercase mb-3 animated slideInDown">Welcome to Homestar</h5>
-                                    <h1 class="display-2 text-light mb-3 animated slideInDown">WORKER DASHBOARD</h1>
+                                    <h1 class="display-2 text-light mb-3 animated slideInDown">Transforming Houses into Homes, One Service at a Time</h1>
                                     <ol class="breadcrumb mb-4 pb-2">
                                         <li class="breadcrumb-item fs-5 text-light">Commercial</li>
                                         <li class="breadcrumb-item fs-5 text-light">Residential</li>
@@ -149,13 +172,12 @@
                             <div class="row justify-content-center">
                                 <div class="col-12 col-lg-10">
                                     <h5 class="text-light text-uppercase mb-3 animated slideInDown">Welcome to HomeStar</h5>
-                                    <h1 class="display-2 text-light mb-3 animated slideInDown">WORKER DASHBOARD</h1>
+                                    <h1 class="display-2 text-light mb-3 animated slideInDown">Quality Craftsmanship, Personalized ServiceOne Service at a Time</h1>
                                     <ol class="breadcrumb mb-4 pb-2">
                                         <li class="breadcrumb-item fs-5 text-light">Commercial</li>
                                         <li class="breadcrumb-item fs-5 text-light">Residential</li>
                                         <li class="breadcrumb-item fs-5 text-light">Industrial</li>
                                     </ol>
-                                    <a href="" class="btn btn-primary py-3 px-5">More Details</a>
                                 </div>
                             </div>
                         </div>

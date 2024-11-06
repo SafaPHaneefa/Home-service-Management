@@ -21,7 +21,7 @@
                 <td style="padding: 10px; border: 1px solid #ddd;">{{ user.email }}</td>
                 <td style="padding: 10px; border: 1px solid #ddd;">{{ user.role }}</td>
                 <td style="padding: 10px; border: 1px solid #ddd;">
-                    <button onclick="deactivateUser({{ user.id }})" style="padding: 5px 10px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">Deactivate</button>
+                    <button onclick="deactivateUser({{ user.id }})" style="padding: 5px 10px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;" id="deactivate">Deactivate</button>
                 </td>
             </tr>
             {% empty %}

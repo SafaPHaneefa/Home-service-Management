@@ -1,0 +1,14 @@
+<div id="worker-list">
+    {% for worker in available_workers %}
+        <div class="worker-item">
+            <h4>{{ worker.worker_name }}</h4>
+            <p>Experience: {{ worker.experience }} years</p>
+            <p>Status: {% if worker.is_available %}Available{% else %}Booked{% endif %}</p>
+            {% if worker.is_available %}
+                <button class="btn btn-primary select-worker" data-worker-id="{{ worker.id }}">Select</button>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>No workers available for the selected criteria.</p>
+    {% endfor %}
+</div>

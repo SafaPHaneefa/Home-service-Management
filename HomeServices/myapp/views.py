@@ -40,7 +40,8 @@ def feature(request):
     return render(request,'feature.html')
 
 def service(request):
-    return render(request,'service.html')
+    Services = Service_Details.objects.all()
+    return render(request,'service.html',{'Service_Details':Services})
 
 def team(request):
     return render(request,'team.html')
@@ -51,6 +52,7 @@ def testimonial(request):
 
 def login(request):
     return render(request,'login.html')
+from django.utils import timezone
 
 def home(request):
     # Check if the user_name exists in the session
@@ -58,16 +60,20 @@ def home(request):
 
     if not username:
         return redirect('login')
-    print(username)  # Output the username for debugging
-    return render(request, 'home.html', {'username': username})
+    print(username)
+    active_announcements = Announcement.objects.filter(expires_at__gt=timezone.now()).order_by('-created_at')
+      # Output the username for debugging
+    return render(request, 'home.html', {'username': username,'active_announcements': active_announcements})
+    
 
 def worker_home(request):
-    username = request.session.get('user_name', 'Guest')  # Get username from session
+    username = request.session.get('user_name', 'Guest')
+    user_id=request.session.get('user_id')  # Get username from session
     
     if not username:
         return redirect('login')
     print(username)
-    return render(request, 'worker_home.html', {'username': username})
+    return render(request, 'worker_home.html', {'username': username,'user_id':user_id})
 
 def forgot_password(request):
     return render(request, 'custom_password_reset.html')
@@ -159,8 +165,6 @@ def register(request):
         username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
-        role = request.POST.get('role')
-        worker_type = request.POST.get('worker')  # This needs to be used correctly
 
         # Initialize an errors dictionary
         errors = {}
@@ -185,7 +189,7 @@ def register(request):
             hashed_password = make_password(password)
 
             # Create user instance
-            new_user = users(username=username, email=email, password=hashed_password, role=role, work="null")
+            new_user = users(username=username, email=email, password=hashed_password, role="user")
             new_user.save()
 
             # Generate OTP and send it to the user's email
@@ -215,6 +219,86 @@ def register(request):
             return redirect('register')
 
     return render(request, 'register.html')
+
+##---Worker registration---##
+from django.shortcuts import render, redirect
+# from .models import Workers, Services
+from django.contrib import messages
+from django.core.mail import send_mail
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+from datetime import datetime
+from .models import Workers_Details, Service_Details
+
+def worker_registration(request):
+    services = Service_Details.objects.all()  # Fetch services from the Service model
+
+    if request.method == 'POST':
+        # Get form data
+        worker_name = request.POST.get('worker_name')
+        profile_image = request.FILES.get('profile_image')
+        email = request.POST.get('email')
+        gender = request.POST.get('gender')
+        dob = request.POST.get('dob')
+        address = request.POST.get('address')
+        pincode = request.POST.get('pincode')
+        phone_no = request.POST.get('phone_no')
+        experience = request.POST.get('experience')
+        certificate = request.FILES.get('certificate')
+        services_selected = request.POST.getlist('services')
+        resume = request.FILES.get('resume')
+
+        # Email validation (check if it exists or is invalid)
+        if Workers_Details.objects.filter(email=email).exists():
+            messages.error(request, "Email already exists!")
+            return redirect('worker_registration')
+        try:
+            validate_email(email)  # Check if the email is in the correct format
+        except ValidationError:
+            messages.error(request, "Invalid email format!")
+            return redirect('worker_registration')
+
+        if len(phone_no) != 10 or not phone_no.isdigit():
+            messages.error(request, "Phone number must be 10 digits!")
+            return redirect('worker_registration')
+        dob_datetime = datetime.strptime(dob, '%Y-%m-%d')
+        today = datetime.today()
+        age = today.year - dob_datetime.year - ((today.month, today.day) < (dob_datetime.month, dob_datetime.day))
+        if age < 18:
+            messages.error(request, "You must be at least 18 years old to register!")
+            return redirect('worker_registration')
+
+        worker = Workers_Details(
+            worker_name=worker_name,
+            profile_image=profile_image,
+            email=email,
+            gender=gender,
+            dob=dob,
+            address=address,
+            pincode=pincode,
+            phone_no=phone_no,
+            experience=experience,
+            certificate=certificate,
+            services=", ".join(services_selected),  # Save selected services as a comma-separated string
+            resume=resume
+        )
+        worker.save()
+
+        # Send a confirmation email after successful registration
+        send_mail(
+            subject='Registration Successful',
+            message='Your registration is successful. Wait for admin approval.',
+            from_email='safaphaneefa@gmail.com',
+            recipient_list=[email],
+            fail_silently=False,
+        )
+
+        return redirect('worker_registration_success')
+
+    return render(request, 'worker_registration.html', {'services': services})
+
+def registration_success(request):
+    return render(request, 'registration_success.html')
 
 
 # View for verifying OTP
@@ -271,6 +355,45 @@ def resend_otp_view(request):
     return render(request, 'verify_otp.html')
 
 
+
+
+
+
+import string
+from .models import Workers_Details, users
+
+def approve_worker(request):
+    if request.method == 'POST':
+        worker_id = request.POST.get('worker_id')
+        worker = Workers_Details.objects.get(id=worker_id)
+        worker.is_active = True
+        worker.save()
+        
+        # Auto-generate password
+        password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        
+        # Send email
+        send_mail(
+            'Your Account Has Been Approved',
+            f'Hello {worker.worker_name},\n\nYour account has been approved. Your password is: {password}\n\nPlease change your password after logging in.',
+            'safaphaneefa@gmail.com',  # Replace with your email
+            [worker.email],  # Recipient email
+            fail_silently=False,
+        )
+        hashed_password = make_password(password)
+
+        # Save to Users table
+        users.objects.create(
+            username=worker.worker_name,
+            email=worker.email,
+            worker_id=worker.id,
+            role="worker",
+            password=hashed_password  # You might want to hash the password
+        )
+
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})
+
 #######################################################################
 
 
@@ -278,42 +401,39 @@ def resend_otp_view(request):
 
 def login_view(request):
     if request.method == 'POST':
-        email = request.POST.get('email')
+        username = request.POST.get('username')
         password = request.POST.get('password')
 
-        try:
-            # Find the user by email using your custom users model
-            user = users.objects.get(email=email)
+        # Check for admin login
+        if username == 'admin' and password == 'admin@123':
+            request.session['is_admin'] = True
+            request.session['user_name'] = 'Admin'
+            messages.success(request, "Admin login successful!")
+            return redirect('admin_dashboard')
 
-            # Check if the password is correct
-            if check_password(password, user.password):                # Log the user in by setting session data
+        # Regular user login
+        try:
+            user = users.objects.get(Q(email=username) | Q(username=username))
+            if check_password(password, user.password):
                 request.session['user_role'] = user.role
                 request.session['user_name'] = user.username
-                print(request.session['user_name'])
-
+                request.session['user_id'] = user.id
                 messages.success(request, "Login successful!")
-
-                # Redirect based on the user's role
-                if user.role == 'admin':
-                    return redirect('admin_home')  # Redirect to admin home
-                elif user.role == 'worker':
-                    return redirect('worker_home')  # Redirect to worker's home page
-                else:  # Assuming the other role is 'user'
-                    return redirect('home')  # Redirect to user's home page
+                if user.role == 'worker':
+                    return redirect('worker_home')
+                else:
+                    return redirect('home')
             else:
-                messages.error(request, "Invalid email or password.")
-                return redirect('login')
-
+                messages.error(request, "Invalid username/email or password.")
         except users.DoesNotExist:
-            messages.error(request, "Invalid email or password.")
-            return redirect('login')
+            messages.error(request, "Invalid username/email or password.")
 
     return render(request, 'login.html')
 
-def logout_view(request):
+def logout(request):
     request.session.flush()  # Clears all session data
     messages.success(request, "Logged out successfully.")
-    return redirect('login')
+    return redirect('index')
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -486,11 +606,9 @@ def deactivate_user(request):
     return JsonResponse({'success': False, 'message': 'Invalid request.'})
 
 
-
 def manage_workers(request):
-    workers_list = users.objects.filter(role='worker')  # Fetch users with role as 'worker'
-    return render(request, 'manage_workers.html', {'workers': workers_list})
-
+    workers = Workers_Details.objects.all()  # Fetch all workers from the workers_details table
+    return render(request, 'manage_workers.html', {'workers': workers})
 from django.contrib.auth.hashers import make_password
 
 
@@ -506,43 +624,29 @@ def deactivate_worker(request):
             return JsonResponse({'success': False, 'message': 'Worker not found.'})
     return JsonResponse({'success': False, 'message': 'Invalid request.'})
 
-def add_worker(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        work=request.POST.get('work')
-        role = 'worker'  # Setting role as worker
-        password = generate_random_password()  # Generate a random password
+from django.shortcuts import render
+from .models import Workers_Details
 
-        # Hash the password before saving it to the database
-        hashed_password = make_password(password)
+def add_worker(request, worker_id):
+    worker = None
+    password = None
 
-        # Create the worker account
-        new_worker = users(
-            username=username,
-            email=email,
-            password=hashed_password,  # Store the hashed password
-            role=role,
-            work=work,
-        )
-        new_worker.save()
+    # Fetch worker details using worker_id from the URL
+    try:
+        worker = Workers_Details.objects.get(id=worker_id)
+    except Workers_Details.DoesNotExist:
+        worker = None
 
-        # Send approval email
-        send_mail(
-            subject='Welcome to Our Service!',
-            message=f'Hello {username},\n\nYour account has been created successfully! Here are your login details:\nUsername: {username}\nPassword: {password}\n\nPlease change your password after logging in.',
-            from_email=settings.EMAIL_HOST_USER,
-            recipient_list=[email],
-            fail_silently=False,
-        )
+    # The password can be regenerated or passed along as needed (if stored or sent in the approval)
+    # password = 'Generate or retrieve if required'
 
-        messages.success(request, "Worker added and email sent successfully!")
-        return redirect('add_worker')  # Redirect to add worker page
+    return render(request, 'add_worker.html', {'worker': worker, 'password': password})
 
-    return render(request, 'add_worker.html')
 
-def update_worker(request, worker_id):
-    worker = users.objects.get(id=worker_id)  # Get worker by ID
+
+def update_worker(request):
+    user_id=request.session.get('user_id')
+    worker = users.objects.get(id=user_id)  # Get worker by ID
     if request.method == 'POST':
         worker.username = request.POST.get('username')
         worker.email = request.POST.get('email')
@@ -554,7 +658,8 @@ def update_worker(request, worker_id):
 
 def logout_view(request):
     logout(request)
-    return redirect('admin_login')  # Redirect to login page after logout
+    return redirect('index')
+  # Redirect to login page after logout
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from .models import Bookings, users  # Import the modified Booking and User models
@@ -566,65 +671,95 @@ from django.contrib import messages
 from .models import Bookings, users
 
 # Function to handle the booking form page
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from .models import Bookings, users, Workers_Details
+
 def booking_view(request):
-    if request.method == 'POST':
-        # Get data from the form
-        booking_date = request.POST.get('booking_date')
-        state = request.POST.get('state')
-        district = request.POST.get('district')
-        city = request.POST.get('city')
-        street_number = request.POST.get('street_number')
-        address_line = request.POST.get('address_line')
-        booking_time = request.POST.get('booking_time')
-        work = request.POST.get('work')  # Using 'work' as the column name
-        phone_number = request.POST.get('phone_number')
-        work_description = request.POST.get('work_description')
+    if request.method == "POST":
+        try:
+            # Get form data
+            user_id = request.session.get('user_id')
+            worker_id = request.POST.get('selected_worker')
+            booking_date = request.POST.get('booking_date')
+            booking_time = request.POST.get('booking_time')
+            state = request.POST.get('state')
+            district = request.POST.get('district')
+            city = request.POST.get('city')
+            street_number = request.POST.get('street_number')
+            address_line = request.POST.get('address_line')
+            work = request.POST.get('work')
+            phone_number = request.POST.get('phone_number')
+            work_description = request.POST.get('work_description')
 
-        # Print form values for debugging
-        print("Form Data:", booking_date, state, district, city, street_number, booking_time, work, phone_number, work_description)
+            # Validate required fields
+            if not all([user_id, worker_id, booking_date, booking_time, state, 
+                       district, city, street_number, address_line, work, 
+                       phone_number, work_description]):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'All fields are required.'
+                })
 
-        # Validate the form fields (you can add more validations as needed)
-        if not booking_date or not state or not district or not city or not street_number or not booking_time or not work or not phone_number or not work_description:
-            messages.error(request, "All fields are required.")
-            return redirect('booking')
+            # Get worker and validate availability
+            worker = Workers_Details.objects.get(id=worker_id)
+            existing_booking = Bookings.objects.filter(
+                worker=worker,
+                booking_date=booking_date
+            ).exists()
 
-        # Since there's no session, ensure you map the booking to a worker based on their role
-        # Here, I'm assuming `users` table has workers
-        worker = users.objects.filter(work=work, role='worker').first()  # Find the first worker of the selected type
-        
-        if not worker:
-            messages.error(request, "No worker available for the selected type of work.")
-            return redirect('booking')
+            if existing_booking:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Selected worker is no longer available for this date.'
+                })
 
-        # Save booking to the database
-        booking = Bookings(
-            user=worker,  # Associate the booking with a worker
-            booking_date=booking_date,
-            state=state,
-            district=district,
-            city=city,
-            street_number=street_number,
-            address_line=address_line,
-            booking_time=booking_time,
-            work=work,
-            phone_number=phone_number,
-            work_description=work_description
-        )
-        booking.save()
+            # Create booking
+            booking = Bookings.objects.create(
+                user_id=user_id,
+                worker=worker,
+                booking_date=booking_date,
+                booking_time=booking_time,
+                state=state,
+                district=district,
+                city=city,
+                street_number=street_number,
+                address_line=address_line,
+                work=work,
+                phone_number=phone_number,
+                work_description=work_description
+            )
 
-        messages.success(request, "Your booking has been submitted successfully!")
-        return redirect('booking')
+            # Update worker status
+            worker.status = "Booked"
+            worker.save()
 
-    # Fetch unique worker types from the users table
-    worker_types = users.objects.values_list('work', flat=True).distinct()  # Fetch distinct worker types
-    return render(request, 'booking.html', {'worker_types': worker_types})
+            return JsonResponse({
+                'success': True,
+                'message': 'Booking successful!'
+            })
+
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': f'Booking failed: {str(e)}'
+            })
+
+    return JsonResponse({
+        'success': False,
+        'message': 'Invalid request method'
+    })
 
 # Function to dynamically return the districts based on the selected state (AJAX)
 @csrf_exempt
 def get_districts(request):
     state = request.GET.get('state')
     state_districts = {
-        'Kerala': ['Thiruvananthapuram', 'Ernakulam', 'Kozhikode', 'Kannur'],
+       'Kerala': [
+            'Alappuzha', 'Ernakulam', 'Idukki', 'Kannur', 'Kasaragod', 
+            'Kollam', 'Kottayam', 'Kozhikode', 'Malappuram', 'Palakkad', 
+            'Pathanamthitta', 'Thiruvananthapuram', 'Thrissur', 'Wayanad'
+        ],
         'Karnataka': ['Bangalore', 'Mysore', 'Mangalore', 'Hubli'],
         'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Trichy'],
         'Maharashtra': ['Mumbai', 'Pune', 'Nagpur', 'Nashik'],
@@ -633,24 +768,101 @@ def get_districts(request):
     districts = state_districts.get(state, [])
     return JsonResponse({'districts': districts})
 
-def booking(request):
-    username = request.session.get('user_name', None)  # Use get to safely access session data
+# def booking(request):
+#     username = request.session.get('user_name', None)  # Use get to safely access session data
 
-    if not username:
-        return redirect('login')
-    worker_types = users.objects.values_list('work', flat=True).distinct()
-    return render(request, 'bookings.html', {'worker_types': worker_types} )
+#     if not username:
+#         return redirect('login')
+#     worker_types = Service_Details.objects.values_list('service_name', flat=True).distinct()
+    # return render(request, 'bookings.html', {'worker_types': worker_types} )
+
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.db.models import Q
+from .models import Workers_Details, Bookings
+from datetime import datetime
+
+def booking(request):
+    if request.method == "POST" and request.POST.get('update_workers') == 'true':
+        # Get form data
+        booking_date = request.POST.get('booking_date')
+        state = request.POST.get('state')
+        district = request.POST.get('district')
+        work_type = request.POST.get('work')
+
+        # Base query for workers
+        available_workers = Workers_Details.objects.filter(
+            is_active=True,
+            status="Available"
+        )
+
+        # Apply filters based on form data
+        if state:
+            available_workers = available_workers.filter(state=state)
+        
+        if district:
+            available_workers = available_workers.filter(district=district)
+        
+        if work_type:
+            available_workers = available_workers.filter(services__icontains=work_type)
+
+        # If booking date is provided, exclude workers who are already booked
+        if booking_date:
+            try:
+                booking_date = datetime.strptime(booking_date, '%Y-%m-%d').date()
+                booked_workers = Bookings.objects.filter(
+                    booking_date=booking_date
+                ).values_list('worker_id', flat=True)
+                
+                available_workers = available_workers.exclude(
+                    id__in=booked_workers
+                )
+            except ValueError:
+                pass  # Handle invalid date format
+
+        # Render only the worker list partial template
+        html = render_to_string(
+            'bookings.html',
+            {
+                'available_workers': available_workers,
+                'selected_date': booking_date,
+            },
+            request=request
+        )
+        return HttpResponse(html)
+
+    # Regular form GET request
+    worker_types = Service_Details.objects.values_list('service_name', flat=True).distinct()
+    context = {
+        'worker_types': worker_types,
+    }
+    return render(request, 'bookings.html', context)
+
+
+def my_bookings(request):
+    # Fetch bookings related to the logged-in user
+    bookings = Bookings.objects.filter(user=request.session.get('user_id'))
+
+    context = {
+        'bookings': bookings
+    }
+    return render(request, 'my_bookings.html', context)
+from .models import Bookings  # Make sure 'Booking' is the correct model name
+from datetime import datetime
+from .models import Bookings  # Import the model
 
 def manage_bookings(request):
     if request.session.get('is_admin'):  # Check if user is admin
-        bookings = Booking.objects.all()  # Fetch all bookings from the database
+        bookings = Bookings.objects.select_related('user').all()  # Fetch all bookings from the database
         context = {
             'bookings': bookings,
             'current_year': datetime.now().year,  # Add current year for footer
         }
-        return render(request, 'admin/manage_bookings.html', context)
+        return render(request, 'manage_bookings.html', context)
     else:
         return redirect('admin_login')  # Redirect to login if not admin
+
 
 from .models import Feedback
 
@@ -682,3 +894,107 @@ def search_work(request):
         workers = User.objects.filter(work=selected_role)
 
     return render(request, 'search_work.html', {'roles': roles, 'workers': workers})
+
+from django.shortcuts import render, redirect
+from .models import Service_Details
+from django.contrib import messages
+
+def add_service(request):
+    if request.method == "POST":
+        service_image = request.FILES.get('service_image')
+        service_name = request.POST.get('service_name')
+        description = request.POST.get('description')
+        price = request.POST.get('price')
+
+        service = Service_Details(
+            service_image=service_image,
+            service_name=service_name,
+            description=description,
+            price=price
+        )
+        service.save()
+        messages.success(request, 'Service added successfully!')
+        return redirect('add_service')  # Redirect to the same page or another page after adding the service
+
+    return render(request, 'add_service.html')
+
+
+from django.shortcuts import render, redirect
+from .models import Announcement
+from django.contrib import messages
+from django.utils import timezone
+
+def add_announcement(request):
+    if not request.session.get('is_admin'):
+        return redirect('admin_login')
+
+    if request.method == "POST":
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        expires_at = request.POST.get('expires_at')
+
+        Announcement.objects.create(
+            title=title,
+            content=content,
+            expires_at=expires_at
+        )
+        messages.success(request, 'Announcement added successfully!')
+        return redirect('admin_dashboard')
+
+    return render(request, 'add_announcement.html')
+
+from .models import Announcement
+from django.contrib import messages
+
+def view_announcements(request):
+    announcements = Announcement.objects.all().order_by('-created_at')
+    return render(request, 'view_announcements.html', {'announcements': announcements})
+
+def delete_announcement(request, announcement_id):
+    announcement = get_object_or_404(Announcement, id=announcement_id)
+    announcement.delete()
+    messages.success(request, 'Announcement deleted successfully.')
+    return redirect('view_announcements')
+
+import os
+from django.conf import settings
+from django.http import FileResponse, Http404
+
+def certificate_view(request, filename):
+    file_path = os.path.join(settings.BASE_DIR, 'HomeServices', 'certificates', filename)
+    print(f"Attempting to access file: {file_path}")
+    print(f"File exists: {os.path.exists(file_path)}")
+    print(f"Directory contents: {os.listdir(os.path.dirname(file_path))}")
+    try:
+        return FileResponse(open(file_path, 'rb'), content_type='application/pdf')
+    except FileNotFoundError:
+        print(f"File not found: {file_path}")
+
+import os
+from django.http import FileResponse, Http404
+from django.conf import settings
+
+def resume_view(request, filename):
+    file_path = os.path.join(settings.BASE_DIR, 'HomeServices', 'resumes', filename)
+
+    # Check if the file exists
+    if os.path.exists(file_path):
+        try:
+            response = FileResponse(open(file_path, 'rb'), content_type='resumes/pdf')
+            response['Content-Disposition'] = 'inline; filename="{}"'.format(filename)  # Set to 'inline' to view in browser
+            return response
+        except Exception as e:
+            raise Http404("Error occurred while opening the file")
+    else:
+        raise Http404("Resume not found")
+
+
+def profile_image_view(request, filename):
+    file_path = os.path.join(settings.BASE_DIR, 'HomeServices', 'profile_images', filename)
+    try:
+        return FileResponse(open(file_path, 'rb'), content_type='image/jpeg')  # Adjust content type if needed
+    except FileNotFoundError:
+        raise Http404()
+    
+    
+    

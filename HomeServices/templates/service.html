@@ -78,7 +78,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarCollapse">
             <div class="navbar-nav ms-auto py-3 py-lg-0">
-                <a href="{% url 'index' %}" class="nav-item nav-link">Home</a>
+                <a href="{% url 'home' %}" class="nav-item nav-link">Home</a>
                 <a href="{% url 'about' %}" class="nav-item nav-link">About Us</a>
                 <a href="{% url 'service' %}" class="nav-item nav-link active">Our Services</a>
                 <div class="nav-item dropdown">
@@ -113,115 +113,25 @@
     <!-- Page Header End -->
 
     <!-- Service Start -->
-    <div class="container-xxl py-5">
-        <div class="container">
-            <div class="row g-5 align-items-end mb-5">
-                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
-                    <div class="border-start border-5 border-primary ps-4">
-                        <h6 class="text-body text-uppercase mb-2">Our Services</h6>
-                        <h1 class="display-6 mb-0">Unique solutions for personalized service experiences.</h1>
-                    </div>
-                </div>
-                <div class="col-lg-6 text-lg-end wow fadeInUp" data-wow-delay="0.3s">
-                    <a class="btn btn-primary py-3 px-5" href="">More Services</a>
-                </div>
+    
+                
                 <div class="row g-4 justify-content-center">
+                    {% for service in Service_Details %}
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                         <div class="service-item bg-light overflow-hidden h-100">
-                            <img class="img-fluid" src="{% static 'img/wood.jpeg' %}" alt="">
+                            <img class="img-fluid" src="{% static service.service_image %}" alt="{{ service.service_name }}">
                             <div class="service-text position-relative text-center h-100 p-4">
-                                <h5 class="mb-3">Carpentry & Woodworking</h5>
-                                <p>Tempor erat elitr rebum at clita dolor diam ipsum sit diam amet diam et eos</p>
-                                <a class="small" href="">READ MORE<i class="fa fa-arrow-right ms-3"></i></a>
+                                <h5 class="mb-3">{{ service.service_name }}</h5>
+                                <p>{{ service.description }}</p>
+                                <p>Price:{{service.price}}</p>
+                                <a class="small" href="{% url 'bookings' %}?service={{ service.service_name|urlencode }}">Book Now<i class="fa fa-arrow-right ms-3"></i></a>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-                        <div class="service-item bg-light overflow-hidden h-100">
-                            <img class="img-fluid" src="{% static 'img/service-2.jpg' %}" alt="">
-                            <div class="service-text position-relative text-center h-100 p-4">
-                                <h5 class="mb-3">Home Maintenance & Renovation</h5>
-                                <p>From repainting your house to plumbing, all essential maintenance works will now be taken care of by the Confi Care Department. 
-                                    Send a mail regarding any maintenance issues you are facing and we’ll ensure that they are fixed swiftly.</p>
-                                <a class="small" href="">READ MORE<i class="fa fa-arrow-right ms-3"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                        <div class="service-item bg-light overflow-hidden h-100">
-                            <img class="img-fluid" src="{% static 'img/service-4.jpg' %}" alt="">
-                            <div class="service-text position-relative text-center h-100 p-4">
-                                <h5 class="mb-3">Wiring and Installation</h5>
-                                <p>Tempor erat elitr rebum at clita dolor diam ipsum sit diam amet diam et eos</p>
-                                <a class="small" href="">READ MORE<i class="fa fa-arrow-right ms-3"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                        <div class="service-item bg-light overflow-hidden h-100">
-                            <img class="img-fluid" src="{% static 'img/p.jpg' %}" alt="">
-                            <div class="service-text position-relative text-center h-100 p-4">
-                                <h5 class="mb-3">Plumbing Services</h5>
-                                <p>Tempor erat elitr rebum at clita dolor diam ipsum sit diam amet diam et eos</p>
-                                <a class="small" href="">READ MORE<i class="fa fa-arrow-right ms-3"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                        <div class="service-item bg-light overflow-hidden h-100">
-                            <img class="img-fluid" src="{% static 'img/cctv.jpeg' %}" alt="">
-                            <div class="service-text position-relative text-center h-100 p-4">
-                                <h5 class="mb-3">Home automation</h5>
-                                <p>Tempor erat elitr rebum at clita dolor diam ipsum sit diam amet diam et eos</p>
-                                <a class="small" href="">READ MORE<i class="fa fa-arrow-right ms-3"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                        <div class="service-item bg-light overflow-hidden h-100">
-                            <img class="img-fluid" src="{% static 'img/roof.jpeg' %}" alt="">
-                            <div class="service-text position-relative text-center h-100 p-4">
-                                <h5 class="mb-3">Roofing</h5>
-                                <p>Tempor erat elitr rebum at clita dolor diam ipsum sit diam amet diam et eos</p>
-                                <a class="small" href="">READ MORE<i class="fa fa-arrow-right ms-3"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-                        <div class="service-item bg-light overflow-hidden h-100">
-                            <img class="img-fluid" src="{% static 'img/service-5.jpg' %}" alt="">
-                            <div class="service-text position-relative text-center h-100 p-4">
-                                <h5 class="mb-3">Flooring and Painting</h5>
-                                <p>Tempor erat elitr rebum at clita dolor diam ipsum sit diam amet diam et eos</p>
-                                <a class="small" href="">READ MORE<i class="fa fa-arrow-right ms-3"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
-                        <div class="service-item bg-light overflow-hidden h-100">
-                            <img class="img-fluid" src="{% static 'img/clean.jpg' %}" alt="">
-                            <div class="service-text position-relative text-center h-100 p-4">
-                                <h5 class="mb-3">Sparkle & Shine Cleaning</h5>
-                                <p>Ensure that your surroundings are taken care of in the best possible manner.
-                                     Our housekeeping services will keep your space spic and span. 
-                                    Now, you don’t have to be worried about the cleanliness of your surroundings. We’ll take care of it for you.</p>
-                                <a class="small" href="">READ MORE<i class="fa fa-arrow-right ms-3"></i></a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
-                        <div class="service-item bg-light overflow-hidden h-100">
-                            <img class="img-fluid" src="{% static 'img/service-6.jpg' %}" alt="">
-                            <div class="service-text position-relative text-center h-100 p-4">
-                                <h5 class="mb-3">Interior Design Consultation</h5>
-                                <p>Tempor erat elitr rebum at clita dolor diam ipsum sit diam amet diam et eos</p>
-                                <a class="small" href="">READ MORE<i class="fa fa-arrow-right ms-3"></i></a>
-                            </div>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
-            </div>
-        </div>
+                
+                    
     <!-- Service End -->
 
     <!-- Footer Start -->
@@ -229,41 +139,20 @@
         <div class="container">
             <div class="row g-5">
                 <div class="col-lg-3 col-md-6">
-                    <h4 class="text-white mb-3">Company</h4>
-                    <a class="btn btn-link" href="">About Us</a>
-                    <a class="btn btn-link" href="">Contact Us</a>
-                    <a class="btn btn-link" href="">Privacy Policy</a>
+                
                     <a class="btn btn-link" href="">Terms & Condition</a>
                     <a class="btn btn-link" href="">Support</a>
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <h4 class="text-white mb-3">Services</h4>
                     <a class="btn btn-link" href="">Building Construction</a>
-                    <a class="btn btn-link" href="">Home Maintenance</a>
-                    <a class="btn btn-link" href="">Interior Design</a>
-                    <a class="btn btn-link" href="">Painting</a>
-                    <a class="btn btn-link" href="">Electric Work</a>
+                   
                 </div>
                 <div class="col-lg-3 col-md-6">
                     <h4 class="text-white mb-3">Contact</h4>
                     <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>123 Street, New York, USA</p>
                     <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
                     <p class="mb-2"><i class="fa fa-envelope me-3"></i>info@example.com</p>
-                    <div class="d-flex pt-2">
-                        <a class="btn btn-square btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a>
-                        <a class="btn btn-square btn-outline-light btn-social" href=""><i class="fab fa-facebook-f"></i></a>
-                        <a class="btn btn-square btn-outline-light btn-social" href=""><i class="fab fa-youtube"></i></a>
-                        <a class="btn btn-square btn-outline-light btn-social" href=""><i class="fab fa-linkedin-in"></i></a>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6">
-                    <h4 class="text-white mb-3">Newsletter</h4>
-                    <p>Dolor amet sit justo amet elitr clita ipsum elitr est.</p>
-                    <div class="position-relative w-100 mt-3">
-                        <input class="form-control border-0 rounded-pill w-100 ps-4 pe-5" type="text" placeholder="Your Email">
-                        <button type="button" class="btn shadow-none position-absolute top-0 end-0 mt-1 me-2"><i
-                                class="fa fa-paper-plane text-primary"></i></button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -272,7 +161,7 @@
         <div class="container text-center">
             <div class="row">
                 <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                    &copy; <a class="border-bottom text-secondary" href="#">Your Site Name</a>, All Right Reserved.
+                    &copy; <a class="border-bottom text-secondary" href="#">HomeStar</a>, All Right Reserved.
 
                     <!-- This template is free as long as you keep the footer credit. -->
                     <!-- You can remove the footer credit if you are planning to purchase the premium version. -->
@@ -282,8 +171,7 @@
                     <div class="footer-menu">
                         <a href="">Home</a>
                         <a href="">Cookies</a>
-                        <a href="">Help</a>
-                        <a href="">FQAs</a>
+                        
                     </div>
                 </div>
             </div>

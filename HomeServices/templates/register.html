@@ -5,42 +5,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <title>Register - Home Services</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="{% static 'lib/font-awesome/5.10.0/css/all.min.css' %}" rel="stylesheet">
+    <link href="{% static 'lib/bootstrap-icons/1.4.1/font/bootstrap-icons.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
     <style>
-        /* Add your CSS styling here */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', sans-serif;
             background-image: url("{% static 'img/veed.jpeg' %}");
             background-size: cover;
             background-position: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            background-attachment: fixed;
+            min-height: 100vh;
             margin: 0;
+            padding-top: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        .navbar {
+                background-color: #aa356f !important; /* Changed to red */
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+        
+       .navbar-light .navbar-nav .nav-link {
+                color: white !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .register-container {
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-            width: 350px;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 800px;
             text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .register-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .register-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .image-container {
+            flex: 0 0 300px;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-right: 30px;
+        }
+
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .form-container {
+            flex: 1;
         }
 
         .register-container h2 {
-            margin-bottom: 20px;
-            font-size: 24px;
-            color: #333333;
+            margin-bottom: 30px;
+            font-size: 28px;
+            color: #333;
+            font-weight: 600;
         }
 
         .register-container label {
             display: block;
             text-align: left;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #555555;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #555;
         }
 
         .register-container input[type="text"],
@@ -48,12 +96,13 @@
         .register-container input[type="password"],
         .register-container select {
             width: 100%;
-            padding: 12px;
-            margin: 10px 0 20px 0;
-            border: 1px solid #cccccc;
-            border-radius: 5px;
+            padding: 12px 15px;
+            margin: 8px 0 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            transition: all 0.3s ease;
+            background-color: #f9f9f9;
         }
 
         .register-container input[type="text"]:focus,
@@ -62,6 +111,7 @@
         .register-container select:focus {
             border-color: #007bff;
             outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
         }
 
         .register-container button {
@@ -70,21 +120,20 @@
             background-color: #007bff;
             color: #ffffff;
             border: none;
-            border-radius: 5px;
-            font-size: 16px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            margin-top: 10px;
         }
 
         .register-container button:hover {
             background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
-        .worker-type-container {
-            display: none;
-        }
-
-        /* Popup styles */
         .popup {
             display: none;
             position: fixed;
@@ -92,19 +141,18 @@
             top: 20%;
             transform: translate(-50%, -50%);
             background-color: #ffffff;
-            padding: 20px;
-            border: 2px solid #cccccc;
-            border-radius: 8px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             text-align: center;
-            width: 300px;
+            width: 350px;
         }
 
         .popup p {
             margin-bottom: 20px;
-            font-size: 16px;
-            color: #333333;
+            font-size: 18px;
+            color: #333;
         }
 
         .popup button {
@@ -112,16 +160,17 @@
             background-color: #007bff;
             color: #ffffff;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            font-weight: 500;
         }
 
         .popup button:hover {
             background-color: #0056b3;
         }
 
-        /* Password strength indicator styles */
         .strength-indicator {
             margin: 10px 0;
             text-align: left;
@@ -129,189 +178,207 @@
 
         .strength-indicator span {
             display: block;
-            font-size: 16px;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 500;
             margin: 5px 0;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
         }
 
-        .strength-weak {
-            color: #f44336;
-        }
-
-        .strength-medium {
-            color: #ff9800;
-        }
-
-        .strength-strong {
-            color: #4caf50;
-        }
+        .strength-weak { background-color: #ffcccb; color: #d32f2f; }
+        .strength-medium { background-color: #fff0b3; color: #f57c00; }
+        .strength-strong { background-color: #c8e6c9; color: #388e3c; }
 
         .show-password-container {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .show-password-container label {
+            margin-right: 10px;
+            margin-bottom: 0;
+        }
+
+        #usernameError, #emailError {
+            color: #d32f2f;
+            font-size: 14px;
+            margin-top: -15px;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+
+        @media (max-width: 768px) {
+            .register-container {
+                width: 90%;
+                padding: 20px;
+            }
+
+            .register-content {
+                flex-direction: column;
+            }
+
+            .image-container {
+                width: 100%;
+                height: 200px;
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <img src="{% static 'img/hstar.png' %}" alt="Home Services" height="50">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'index' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'about' %}">About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'service' %}">Our Services</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'contact' %}">Contact Us</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
-    <form method="POST">
-        {% csrf_token %}
+    <div class="container">
         <div class="register-container">
-            <h2>Sign Up</h2>
+            <h2>Create Your Account</h2>
             {% if messages %}
-            <ul class="messages">
+            <ul class="messages" style="list-style: none; padding: 0;">
                 {% for message in messages %}
-                <li class="{% if message.tags %}{{ message.tags }}{% endif %}">
+                <li class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" style="margin-bottom: 15px;">
                     {{ message }}
                 </li>
                 {% endfor %}
             </ul>
             {% endif %}
-            <form id="registerForm" method="post" action="{% url 'register' %}">
-                <label for="username">Username</label>
-                <input type="text" id="username" placeholder="Create Username" name="username" required>
-                <p id="usernameError" style="color: red;"></p>
-
-                <label for="email">Email</label>
-                <input type="email" id="email" placeholder="Enter Email" name="email" required>
-                <p id="emailError" style="color: red;"></p>
-
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required minlength="6" maxlength="10"
-                    oninput="checkPasswordStrength()">
-                <div class="show-password-container">
-                    <label for="showPassword">Show Password</label>
-                    <input type="checkbox" id="showPassword" onclick="togglePasswordVisibility()">
-                    <id="passwordStrength" class="strength-indicator">
-                        <span id="strengthText">Weak</span>
+            <div class="register-content">
+                <div class="image-container">
+                    <img src="{% static 'img/user66.jpg' %}" alt="User">
                 </div>
+                <div class="form-container">
+                    <form id="registerForm" method="post" action="{% url 'register' %}">
+                        {% csrf_token %}
+                        <label for="username">Username</label>
+                        <input type="text" id="username" placeholder="Choose a unique username" name="username" required>
+                        <p id="usernameError"></p>
 
-                <label for="role">Role</label>
-                <select id="role" name="role" required onchange="toggleWorkerType()">
-                    <option value="user">User</option>
-                    <option value="worker">Worker</option>
-                </select>
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" placeholder="Enter your email address" name="email" required>
+                        <p id="emailError"></p>
 
-                <div id="workerTypeContainer" class="worker-type-container">
-                    <label for="workerType">Worker Type</label>
-                    <select id="workerType" name="workerType">
-                        <option value="">Select a Worker Type</option>
-                        <option value="electrician">Electrician</option>
-                        <option value="plumber">Plumber</option>
-                        <option value="painter">Painter</option>
-                        <option value="carpenter">Carpenter</option>
-                        <option value="cleaner">Cleaner</option>
-                        <option value="interiorDesigner">Interior Designer</option>
-                    </select>
-                    <p id="workerTypeError" style="color: red;"></p>
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" placeholder="Create a strong password" required minlength="6" maxlength="10" oninput="checkPasswordStrength()">
+                        <div class="show-password-container">
+                            <label for="showPassword">
+                                <input type="checkbox" id="showPassword" onclick="togglePasswordVisibility()">
+                                Show Password
+                            </label>
+                        </div>
+                        <div id="passwordStrength" class="strength-indicator">
+                            <span id="strengthText">Password Strength: Weak</span>
+                        </div>
+                        <button type="submit" onclick="return validateForm()">Sign Up</button>
+                    </form>
                 </div>
-
-                <button type="submit" onclick="return validateForm()">Sign in</button>
-            </form>
+            </div>
         </div>
-        <form action="{% url 'verify_otp' %}" method="post">
-            {% csrf_token %}
-            <!-- form fields -->
-            <button type="submit">Verify OTP</button>
-        </form>
-        
-        <!-- Popup for validation messages -->
-        <div id="popup" class="popup">
-            <p id="popupMessage"></p>
-            <button onclick="closePopup()">OK</button>
-        </div>
+    </div>
 
-        <script>
-            function toggleWorkerType() {
-                const role = document.getElementById('role').value;
-                const workerTypeContainer = document.getElementById('workerTypeContainer');
-                workerTypeContainer.style.display = (role === 'worker') ? 'block' : 'none';
-            }
+    <!-- Popup for validation messages -->
+    <div id="popup" class="popup">
+        <p id="popupMessage"></p>
+        <button onclick="closePopup()">OK</button>
+    </div>
 
-            // Validate email while typing
-            document.getElementById('email').addEventListener('input', function () {
-                const email = this.value;
-                const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-                const emailError = document.getElementById('emailError');
+    <script src="{% static 'lib/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'lib/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script>
+        document.getElementById('email').addEventListener('input', function () {
+            const email = this.value;
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            const emailError = document.getElementById('emailError');
 
-                if (!emailPattern.test(email)) {
-                    emailError.textContent = 'Invalid email';
-                } else {
-                    emailError.textContent = '';
-                }
-            });
-
-            function validateForm() {
-                const username = document.getElementById('username').value.trim();
-                const email = document.getElementById('email').value.trim();
-                const role = document.getElementById('role').value;
-                const workerType = document.getElementById('workerType').value;
-                const usernameError = document.getElementById('usernameError');
-                const emailError = document.getElementById('emailError');
-                const workerTypeError = document.getElementById('workerTypeError');
-                let isValid = true;
-
-                // Email validation regex pattern
-                const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
-                // Reset errors
-                usernameError.textContent = '';
+            if (!emailPattern.test(email)) {
+                emailError.textContent = 'Invalid email';
+            } else {
                 emailError.textContent = '';
-                workerTypeError.textContent = '';
+            }
+        });
 
-                if (username === '') {
-                    usernameError.textContent = 'Username is required.';
-                    isValid = false;
-                }
+        function validateForm() {
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const usernameError = document.getElementById('usernameError');
+            const emailError = document.getElementById('emailError');
+            let isValid = true;
 
-                if (email === '') {
-                    emailError.textContent = 'Email is required.';
-                    isValid = false;
-                } else if (!emailPattern.test(email)) {
-                    emailError.textContent = 'Invalid email.';
-                    isValid = false;
-                }
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-                if (role === 'worker' && workerType === '') {
-                    workerTypeError.textContent = 'Please select a worker type.';
-                    isValid = false;
-                }
+            usernameError.textContent = '';
+            emailError.textContent = '';
 
-                return isValid;
+            if (username === '') {
+                usernameError.textContent = 'Username is required.';
+                isValid = false;
             }
 
-            function togglePasswordVisibility() {
-                const password = document.getElementById('password');
-                const showPassword = document.getElementById('showPassword');
-                password.type = showPassword.checked ? 'text' : 'password';
+            if (email === '') {
+                emailError.textContent = 'Email is required.';
+                isValid = false;
+            } else if (!emailPattern.test(email)) {
+                emailError.textContent = 'Invalid email.';
+                isValid = false;
             }
 
-            function checkPasswordStrength() {
-                const password = document.getElementById('password').value;
-                const strengthText = document.getElementById('strengthText');
-                const strengthIndicator = document.getElementById('passwordStrength');
+            return isValid;
+        }
 
-                if (password.length < 6) {
-                    strengthText.textContent = 'Weak';
-                    strengthText.className = 'strength-weak';
-                } else if (password.length <= 8) {
-                    strengthText.textContent = 'Medium';
-                    strengthText.className = 'strength-medium';
-                } else {
-                    strengthText.textContent = 'Strong';
-                    strengthText.className = 'strength-strong';
-                }
+        function togglePasswordVisibility() {
+            const password = document.getElementById('password');
+            const showPassword = document.getElementById('showPassword');
+            password.type = showPassword.checked ? 'text' : 'password';
+        }
+
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const strengthText = document.getElementById('strengthText');
+            const strengthIndicator = document.getElementById('passwordStrength');
+
+            if (password.length < 6) {
+                strengthText.textContent = 'Weak';
+                strengthText.className = 'strength-weak';
+            } else if (password.length <= 8) {
+                strengthText.textContent = 'Medium';
+                strengthText.className = 'strength-medium';
+            } else {
+                strengthText.textContent = 'Strong';
+                strengthText.className = 'strength-strong';
             }
+        }
 
-            function closePopup() {
-                const popup = document.getElementById('popup');
-                popup.style.display = 'none';
-            }
-
-        </script>
-    </form>
+        function closePopup() {
+            const popup = document.getElementById('popup');
+            popup.style.display = 'none';
+        }
+    </script>
 </body>
-
 </html>

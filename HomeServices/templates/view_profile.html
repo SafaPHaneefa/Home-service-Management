@@ -125,19 +125,12 @@
             <li><strong>Role:</strong> {{ user.role }}</li>
             <li><strong>Work:</strong> {{ user.work }}</li>
         </ul>
-   <!--style additional
-        <div class="action-buttons">
-            <a href="#">Connect</a>
-            <a href="#">Message</a>
-        </div>
-
-        <button class="show-more-btn">Show More</button -->
 
         <form method="post" action="{% url 'index' %}">
             {% csrf_token %}
             <button type="submit">Logout</button>
         </form>
-        <form method="post" action="{% url 'home' %}">
+        <form method="post" action="{% url 'worker_home' %}">
             {% csrf_token %}
             <button type="submit">Back</button>
         </form>

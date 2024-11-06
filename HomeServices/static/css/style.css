@@ -1,7 +1,7 @@
 /********** Template CSS **********/
 :root {
-    --primary: #FDA12B;
-    --secondary: #8D9297;
+    --primary: #e7ea11;
+    --secondary: #e0e5ea;
     --light: #F8F9FA;
     --dark: #182333;
 }
@@ -71,10 +71,10 @@
 .navbar.sticky-top {
     top: -100px;
     transition: .5s;
-    background-color: rgba(130, 4, 6, 0.822);
+    background-color: rgba(173, 66, 111, 0.98);
 }
 .bg- {
-    background-color: rgba(130, 4, 0.822) !important;
+    background-color: rgba(173, 66, 111, 0.98) !important;
 }
 
 .navbar .navbar-nav .nav-link {
@@ -108,7 +108,7 @@
 
     .navbar .navbar-nav {
         margin-top: 25px;
-        border-top: 1px solid #EEEEEE;
+        border-top: 1px solid #3f9e75;
     }
 }
 

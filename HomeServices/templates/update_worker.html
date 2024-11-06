@@ -135,14 +135,14 @@
 
             <form method="post" action="{% url 'update' %}">
                 {% csrf_token %}
-                <input type="text" name="username" value="{{ user.username }}" required>
-                <input type="email" name="email" value="{{ user.email }}" required>
+                <input type="text" name="username" value="{{ worker.username }}" required>
+                <input type="email" name="email" value="{{ worker.email }}" required>
                 <!--input type="text" name="work" value="{{ user.work }}" required>
                 <input type="text" name="role" value="{{ user.role }}" required -->
                 <button type="submit">Update</button>
             </form>
 
-            <form method="post" action="{% url 'home' %}">
+            <form method="post" action="{% url 'worker_home' %}">
                 {% csrf_token %}
                 <button type="submit">Cancel</button>
             </form>

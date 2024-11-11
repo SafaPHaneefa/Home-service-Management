@@ -116,13 +116,7 @@
                 <img src="{% static 'img/hstar.png' %}" class="me-3" style="height: 100px; width:160px;">
             </h1>
         </a>
-        <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-            <div class="navbar-nav ms-auto py-3 py-lg-0">
-            </div>
-        </div>
+       
     </nav>
     <!-- Navbar End -->
 
@@ -145,7 +139,7 @@
                         <h3>Manage Users</h3>
                         <p>View and manage user accounts</p>
                     </a>
-                    <a href="{% url 'manage_workers' %}" class="function-button">
+                    <a href="{% url 'manage_workers' %}" class="function-button" id="worker">
                         <i class="fas fa-user-tie"></i> <!-- Icon for Manage Workers -->
                         <h3>Manage Workers</h3>
                         <p>Oversee worker profiles and assignments</p>
@@ -160,7 +154,7 @@
                         <h3>Manage Bookings</h3>
                         <p>View and manage customer bookings</p>
                     </a>
-                    <a href="{% url 'add_announcement' %}" class="function-button">
+                    <a href="{% url 'add_announcement' %}" class="function-button" id="adminadd">
                         <i class="fas fa-bullhorn"></i> <!-- Icon for Add Announcement -->
                         <h3>Add Announcement</h3>
                         <p>Create and publish announcements</p>

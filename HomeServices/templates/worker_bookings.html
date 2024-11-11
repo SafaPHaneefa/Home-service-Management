@@ -1,0 +1,144 @@
+<!-- HomeServices/templates/worker_bookings.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Bookings</title>
+    <link href="{% static 'lib/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+        }
+        .container {
+            display: flex;
+            margin-top: 20px;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #fff;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        .sidebar h3 {
+            text-align: center;
+            color: #333;
+        }
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            margin: 10px 0;
+        }
+        .sidebar ul li a {
+            text-decoration: none;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .sidebar ul li a:hover {
+            color: #333;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+            margin-left: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 18px;
+            text-align: left;
+        }
+        table th, table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .no-bookings {
+            text-align: center;
+            color: #ff5722;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    Worker Dashboard
+</div>
+
+<div class="container">
+    <div class="sidebar">
+        <h3>Sidebar</h3>
+        <ul>
+            <li><a href="{% url 'worker_home' %}">Home</a></li>
+            <li><a href="{% url 'worker_bookings' %}">View Bookings</a></li>
+            <li><a href="{% url 'logout_view' %}">Logout</a></li>
+        </ul>
+    </div>
+
+    <div class="content">
+        <h2>My Bookings</h2>
+
+        {% if bookings %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Customer Name</th>
+                        <th>Booking Date</th>
+                        <th>Address</th>
+                        <th>Worker Type</th>
+                        <th>Work Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                        <tr>
+                            <td>{{ booking.id }}</td>
+                            <td>{{ booking.user.username }}</td>
+                            <td>{{ booking.booking_date }}</td>
+                            <td>{{ booking.address_line }}</td>
+                            <td>{{ booking.work }}</td>
+                            <td>{{ booking.work_description }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-bookings">No bookings available.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script src="{% static 'lib/jquery/jquery.min.js' %}"></script>
+<script src="{% static 'lib/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

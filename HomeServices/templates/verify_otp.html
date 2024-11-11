@@ -1,29 +1,91 @@
+<!-- HomeServices/templates/verify_otp.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Verify OTP</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: #4ca1af;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #3b8490;
+        }
+        .message-list {
+            margin-top: 20px;
+            list-style-type: none;
+            padding: 0;
+        }
+        .message-list li {
+            color: #ff5722; /* Error message color */
+        }
+    </style>
 </head>
 <body>
-    <h2>Verify OTP</h2>
-    <form method="POST" action="{% url 'verify_otp' %}">
-        {% csrf_token %}
-        <label for="otp">Enter OTP:</label>
-        <input type="text" name="otp" id="otp" required>
-        <button type="submit">Verify</button>
-    </form>
-    
-    <form method="POST" action="{% url 'resend_otp' %}">
-        {% csrf_token %}
-        <button type="submit">Resend OTP</button>
-    </form>
+    <div class="container">
+        <h2>Verify OTP</h2>
+        <form method="POST" action="{% url 'verify_otp' %}">
+            {% csrf_token %}
+            <label for="otp">Enter OTP:</label>
+            <input type="text" name="otp" id="otp" required>
+            <button type="submit">Verify</button>
+        </form>
+        
+        <form method="POST" action="{% url 'resend_otp' %}">
+            {% csrf_token %}
+            <button type="submit">Resend OTP</button>
+        </form>
 
-    {% if messages %}
-        <ul>
-            {% for message in messages %}
-                <li>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+        {% if messages %}
+            <ul class="message-list">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
 </body>
 </html>

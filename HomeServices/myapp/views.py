@@ -240,6 +240,8 @@ def worker_registration(request):
         email = request.POST.get('email')
         gender = request.POST.get('gender')
         dob = request.POST.get('dob')
+        state = request.POST.get('state')  # Capture state
+        district = request.POST.get('district')  # Capture district
         address = request.POST.get('address')
         pincode = request.POST.get('pincode')
         phone_no = request.POST.get('phone_no')
@@ -268,12 +270,15 @@ def worker_registration(request):
             messages.error(request, "You must be at least 18 years old to register!")
             return redirect('worker_registration')
 
+        # Create the worker instance with state and district
         worker = Workers_Details(
             worker_name=worker_name,
             profile_image=profile_image,
             email=email,
             gender=gender,
             dob=dob,
+            state=state,  # Store state
+            district=district,  # Store district
             address=address,
             pincode=pincode,
             phone_no=phone_no,
@@ -305,31 +310,31 @@ def registration_success(request):
 def verify_otp_view(request):
     if request.method == 'POST':
         user_email = request.session.get('registration_email')  # Get email from session
-        otp = request.POST.get('otp')
-        otp_Send=request.session['otp']
+        # otp = request.POST.get('otp')
+        # otp_Send=request.session['otp']
         
-        print(user_email)
-        # Validate the OTP
-        if otp:
-            # OTP is valid, create user account
-            # Set the user as registered in your system
-            user = users.objects.get(email=user_email)  # Adjust this to your user retrieval method
-            user.status = 'approved'  # or however you handle activated users
-            user.save()
+        # print(user_email)
+        # # Validate the OTP
+        # if otp:
+        #     # OTP is valid, create user account
+        #     # Set the user as registered in your system
+        #     user = users.objects.get(email=user_email)  # Adjust this to your user retrieval method
+        #     user.status = 'approved'  # or however you handle activated users
+        #     user.save()
 
-            # Send success email
-            send_mail(
-                'Registration Successful',
-                'You have been successfully registered.',
-                settings.DEFAULT_FROM_EMAIL,
-                [user_email],
-                fail_silently=False,
-            )
+        #     # Send success email
+        #     send_mail(
+        #         'Registration Successful',
+        #         'You have been successfully registered.',
+        #         settings.DEFAULT_FROM_EMAIL,
+        #         [user_email],
+        #         fail_silently=False,
+        #     )
 
-            messages.success(request, 'You have been successfully registered!')
-            return redirect('home')  # Redirect to home.html after successful verification
-        else:
-            messages.error(request, 'Invalid OTP. Please try again.')
+            # messages.success(request, 'You have been successfully registered!')
+        return redirect('home')  # Redirect to home.html after successful verification
+        # else:
+        #     messages.error(request, 'Invalid OTP. Please try again.')
     
     return render(request, 'verify_otp.html')
 
@@ -354,7 +359,15 @@ def resend_otp_view(request):
 
     return render(request, 'verify_otp.html')
 
+def worker_bookings(request):
+    user_id = request.session.get('worker_id')  # Get the logged-in user's ID
+    print("Worker_id",user_id)
+    bookings = Bookings.objects.filter(worker_id=user_id)  # Fetch bookings related to the logged-in worker
 
+    context = {
+        'bookings': bookings
+    }
+    return render(request, 'worker_bookings.html', context)
 
 
 
@@ -420,6 +433,7 @@ def login_view(request):
                 request.session['user_id'] = user.id
                 messages.success(request, "Login successful!")
                 if user.role == 'worker':
+                    request.session['worker_id']=user.worker_id
                     return redirect('worker_home')
                 else:
                     return redirect('home')
@@ -502,9 +516,11 @@ def view_profile(request):
         try:
             # Fetch user data from the database based on the username
             user = users.objects.get(username=username)
+            worker_id=user.worker_id
+            work=Workers_Details.objects.get(id=worker_id)
 
             # Pass the user object to the template for rendering
-            return render(request, 'view_profile.html', {'user': user})
+            return render(request, 'view_profile.html', {'user': user,'work':work})
 
         except users.DoesNotExist:
             messages.error(request, "User not found.")

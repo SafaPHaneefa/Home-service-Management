@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'HomeServices.wsgi.application'
 #         'PORT': '3306',        # default MySQL port
 #     }
 # }
-
+#hosting database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',

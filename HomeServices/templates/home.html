@@ -33,7 +33,7 @@
 
     <style>
         .sidebar {
-            background-color: :blank /* Transparent black */
+            background-color: #f8f9fa; /* Adjusted for better visibility */
             color: white;
             height: 100vh;
             width: 200px;
@@ -45,6 +45,11 @@
         }
         .sidebar .nav-link {
             color: rgb(190, 169, 185);
+            font-size: 18px; /* Increase font size for better visibility */
+        }
+        .sidebar .nav-link i {
+            font-size: 24px; /* Increase icon size */
+            margin-right: 10px; /* Add some space between icon and text */
         }
         .sidebar .nav-link:hover {
             color: hsl(65, 99%, 52%);
@@ -124,7 +129,7 @@
                 <a href="{% url 'service' %}" class="nav-item nav-link">Our Services</a>
                 <a href="{% url 'booking'%}" class="nav-item nav-link" id="booking">Book Service  </a>
                 <a href="{% url 'feedback_form' %}" class="nav-item nav-link">Feedback</a>
-                <a href="{% url 'search_work' %}" class="nav-item nav-link">Search Work</a>
+
                 <div class="profile-container">
                     <!-- Display the profile icon -->
                     <img src="{% static 'img/icon.png' %}" alt="Profile Icon" class="profile-icon" style="width:40px; height:40px; border-radius:50%;">

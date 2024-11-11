@@ -62,6 +62,7 @@ urlpatterns = [
     path('resume/<str:filename>/', views.resume_view, name='resume_view'),
     path('profile_image/<str:filename>/', views.profile_image_view, name='profile_image_view'),
     path('my_bookings/', views.my_bookings, name='my_bookings'),
+    path('worker_bookings/', views.worker_bookings, name='worker_bookings')
 ] 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

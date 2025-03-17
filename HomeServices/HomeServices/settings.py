@@ -95,10 +95,10 @@ DATABASES = {
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'homedb_afternoon',
-#         'USER': 'homedb_afternoon',
-#         'PASSWORD': 'b3a1e7818bcf7c229161ab0df699429f1ab01e4d',
-#         'HOST': 'nw0a4.h.filess.io',   # or '127.0.0.1'
+#         'NAME': 'homedb_fourthsky',
+#         'USER': 'homedb_fourthsky',
+#         'PASSWORD': '7c25a6787de224ced52374216a3936faee76ea82',
+#         'HOST': '4cdyv.h.filess.io',   # or '127.0.0.1'
 #         'PORT': '3307',        # default MySQL port
 #     }
 # }

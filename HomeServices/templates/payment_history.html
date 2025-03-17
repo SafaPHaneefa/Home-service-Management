@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment History</title>
+    <link href="{% static 'lib/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .header1 {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+        }
+        .container {
+            display: flex;
+            margin-top: 20px;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #fff;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        .content {
+            flex: 1;
+            padding: 20px;
+            background-color: #fff;
+            margin-left: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        .payment-card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .payment-status {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+        .status-pending {
+            background-color: #ffd700;
+            color: #000;
+        }
+        .status-completed {
+            background-color: #90EE90;
+            color: #000;
+        }
+        .status-failed {
+            background-color: #ffcccb;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="header1">
+        Worker Dashboard
+    </div>
+
+    <div class="container">
+        <div class="sidebar">
+            <h3>Sidebar</h3>
+            <ul>
+                <li><a href="{% url 'worker_home' %}">Home</a></li>
+                <li><a href="{% url 'worker_bookings' %}">View Bookings</a></li>
+                <li><a href="{% url 'payment_history' %}">Payment History</a></li>
+                <li><a href="{% url 'logout_view' %}">Logout</a></li>
+            </ul>
+        </div>
+
+        <div class="content">
+            <h2>Payment History</h2>
+            
+            {% if payments %}
+                {% for payment in payments %}
+                    <div class="payment-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5>Payment ID: {{ payment.id }}</h5>
+                            <span class="payment-status status-{{ payment.payment_status }}">
+                                {{ payment.payment_status|title }}
+                            </span>
+                        </div>
+                        <p><strong>Customer:</strong> {{ payment.booking.user.username }}</p>
+                        <p><strong>Service:</strong> {{ payment.booking.work }}</p>
+                        <p><strong>Date:</strong> {{ payment.payment_date|date:"F d, Y" }}</p>
+                        <p><strong>Working Hours:</strong> {{ payment.total_hours }}</p>
+                        <p><strong>Rate per Hour:</strong> ₹{{ payment.rate_per_hour }}</p>
+                        <p><strong>Total Amount:</strong> ₹{{ payment.amount }}</p>
+                        {% if payment.additional_notes %}
+                            <p><strong>Notes:</strong> {{ payment.additional_notes }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No payment records found.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html> 

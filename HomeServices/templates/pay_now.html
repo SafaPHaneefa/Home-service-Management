@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay Now</title>
+    <link href="{% static 'lib/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        .payment-details {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .pay-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+        .pay-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="payment-details">
+            <h2 class="mb-4">Payment Details</h2>
+            <a href="{% url 'home' %}" class="btn btn-secondary mb-3">Back to Home</a>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5>Service: {{ payment.booking.work }}</h5>
+                    <p><strong>Worker:</strong> {{ payment.booking.worker.worker_name }}</p>
+                    <p><strong>Working Hours:</strong> {{ payment.total_hours }}</p>
+                    <p><strong>Rate per Hour:</strong> ₹{{ payment.rate_per_hour }}</p>
+                    <p><strong>Total Amount:</strong> ₹{{ payment.amount }}</p>
+                    
+                    <button id="pay-button" class="pay-button">Pay Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var options = {
+            "key": "{{ razorpay_key }}",
+            "amount": "{{ amount }}",
+            "currency": "{{ currency }}",
+            "name": "Home Services",
+            "description": "Payment for {{ payment.booking.work }}",
+            "order_id": "{{ razorpay_order_id }}",
+            "handler": function (response) {
+                // Send payment verification details to server
+                fetch("{% url 'payment_callback' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                    },
+                    body: new URLSearchParams({
+                        'razorpay_payment_id': response.razorpay_payment_id,
+                        'razorpay_order_id': response.razorpay_order_id,
+                        'razorpay_signature': response.razorpay_signature
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('Payment successful!');
+                        window.location.href = "{% url 'user_payment_history' %}";
+                    } else {
+                        alert('Payment failed. Please try again.');
+                    }
+                });
+            },
+            "prefill": {
+                "name": "{{ username }}",
+                "email": "{{ email }}"
+            },
+            "theme": {
+                "color": "#4CAF50"
+            }
+        };
+        
+        document.getElementById('pay-button').onclick = function(e) {
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+            e.preventDefault();
+        }
+    </script>
+</body>
+</html> 

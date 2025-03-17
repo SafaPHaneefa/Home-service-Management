@@ -123,7 +123,12 @@
         <ul>
             <li><strong>Email:</strong> {{ user.email }}</li>
             <li><strong>Role:</strong> {{ user.role }}</li>
+            {% if user.role == 'worker'%}
+            
             <li><strong>Work:</strong> {{ work.services }}</li>
+            
+            {% endif %}
+           
         </ul>
 
         <form method="post" action="{% url 'index' %}">

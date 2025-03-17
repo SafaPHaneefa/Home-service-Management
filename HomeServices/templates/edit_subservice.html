@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Sub-Service</title>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Sub-Service</h1>
+        <form method="POST" action="{% url 'edit_subservice' sub_service.id %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" id="editSubServiceId" name="sub_service_id" value="{{ sub_service.id }}">
+            <div class="form-group">
+                <label for="editSubServiceName">Sub-Service Name:</label>
+                <input type="text" id="editSubServiceName" name="sub_service_name" class="form-control" value="{{ sub_service.sub_service_name }}" required>
+            </div>
+            <div class="form-group">
+                <label for="editDescription">Description:</label>
+                <textarea id="editDescription" name="description" class="form-control" required>{{ sub_service.description }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="editRate">Rate:</label>
+                <input type="number" id="editRate" name="rate" class="form-control" step="0.01" value="{{ sub_service.rate }}" required>
+            </div>
+            <div class="form-group">
+                <label for="editImage">Service Image:</label>
+                {% if sub_service.image %}
+                    <img src="{{ sub_service.image.url }}" alt="Current image" style="max-width: 200px; margin: 10px 0;">
+                {% endif %}
+                <input type="file" id="editImage" name="image" class="form-control-file">
+                <small class="form-text text-muted">Leave empty to keep current image</small>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Sub-Service</button>
+            <a href="{% url 'manage_subservice' %}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

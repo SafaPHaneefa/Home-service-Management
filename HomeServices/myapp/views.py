@@ -19,6 +19,10 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import views as auth_views
 from django.urls import reverse_lazy
+from django.urls import reverse
+from django.conf import settings
+import os
+
 #from .forms import CustomPasswordResetForm, CustomSetPasswordForm
 # Create your views here.
 def index(request):
@@ -62,8 +66,9 @@ def home(request):
         return redirect('login')
     print(username)
     active_announcements = Announcement.objects.filter(expires_at__gt=timezone.now()).order_by('-created_at')
+    Services = Service_Details.objects.all()
       # Output the username for debugging
-    return render(request, 'home.html', {'username': username,'active_announcements': active_announcements})
+    return render(request, 'home.html', {'username': username,'active_announcements': active_announcements,'Service_Details':Services})
     
 
 def worker_home(request):
@@ -232,6 +237,7 @@ from .models import Workers_Details, Service_Details
 
 def worker_registration(request):
     services = Service_Details.objects.all()  # Fetch services from the Service model
+    error_messages = {}  # Dictionary to hold error messages
 
     if request.method == 'POST':
         # Get form data
@@ -250,25 +256,38 @@ def worker_registration(request):
         services_selected = request.POST.getlist('services')
         resume = request.FILES.get('resume')
 
+        # Validate file types
+        if profile_image and not profile_image.name.endswith(('.png', '.jpg', '.jpeg')):
+            error_messages['profile_image'] = "Profile image must be a PNG or JPG file."
+
+        if certificate and not certificate.name.endswith('.pdf'):
+            error_messages['certificate'] = "Certificate must be a PDF file."
+
+        if resume and not resume.name.endswith('.pdf'):
+            error_messages['resume'] = "Resume must be a PDF file."
+
         # Email validation (check if it exists or is invalid)
         if Workers_Details.objects.filter(email=email).exists():
-            messages.error(request, "Email already exists!")
-            return redirect('worker_registration')
+            error_messages['email'] = "Email already exists!"
+
+        # Additional validations...
         try:
             validate_email(email)  # Check if the email is in the correct format
         except ValidationError:
-            messages.error(request, "Invalid email format!")
-            return redirect('worker_registration')
+            error_messages['email'] = "Invalid email format!"
 
         if len(phone_no) != 10 or not phone_no.isdigit():
-            messages.error(request, "Phone number must be 10 digits!")
-            return redirect('worker_registration')
+            error_messages['phone_no'] = "Phone number must be 10 digits!"
+
         dob_datetime = datetime.strptime(dob, '%Y-%m-%d')
         today = datetime.today()
         age = today.year - dob_datetime.year - ((today.month, today.day) < (dob_datetime.month, dob_datetime.day))
         if age < 18:
-            messages.error(request, "You must be at least 18 years old to register!")
-            return redirect('worker_registration')
+            error_messages['age'] = "You must be at least 18 years old to register!"
+
+        # If there are any error messages, render the form again with errors
+        if error_messages:
+            return render(request, 'worker_registration.html', {'services': services, 'error_messages': error_messages})
 
         # Create the worker instance with state and district
         worker = Workers_Details(
@@ -321,15 +340,6 @@ def verify_otp_view(request):
         #     user = users.objects.get(email=user_email)  # Adjust this to your user retrieval method
         #     user.status = 'approved'  # or however you handle activated users
         #     user.save()
-
-        #     # Send success email
-        #     send_mail(
-        #         'Registration Successful',
-        #         'You have been successfully registered.',
-        #         settings.DEFAULT_FROM_EMAIL,
-        #         [user_email],
-        #         fail_silently=False,
-        #     )
 
             # messages.success(request, 'You have been successfully registered!')
         return redirect('home')  # Redirect to home.html after successful verification
@@ -516,11 +526,18 @@ def view_profile(request):
         try:
             # Fetch user data from the database based on the username
             user = users.objects.get(username=username)
-            worker_id=user.worker_id
-            work=Workers_Details.objects.get(id=worker_id)
+            worker_id = user.worker_id
+            
+            # Check if worker_id is "none" (as a string)
+            if worker_id == "none":
+                # Render the view_profile.html with user data only
+                return render(request, 'view_profile.html', {'user': user, 'work': user})  # Send None for work
+            
+            # If worker_id is valid, fetch the worker details
+            work = Workers_Details.objects.get(id=worker_id)
 
-            # Pass the user object to the template for rendering
-            return render(request, 'view_profile.html', {'user': user,'work':work})
+            # Pass the user object and work object to the template for rendering
+            return render(request, 'view_profile.html', {'user': user, 'work': work})
 
         except users.DoesNotExist:
             messages.error(request, "User not found.")
@@ -530,32 +547,6 @@ def view_profile(request):
         return redirect('login')  # Redirect to login if not logged in
 ################################################
 
-# def admin_login(request):
-#     if request.method == 'POST':
-#         username = request.POST['username']
-#         password = request.POST['password']
-        
-#         # Check against predefined credentials
-#         if username == 'admin' and password == 'admin@123':
-#             # Create a custom session for the admin user
-#             request.session['is_admin'] = username
-#             return redirect('admin_dashboard')  # Redirect to admin dashboard
-#         else:
-#             messages.error(request, "Invalid username or password. Please try again.")
-    
-#     return render(request, 'admin_login.html')
-
-
-# from django.shortcuts import redirect
-# from django.contrib.auth.decorators import login_required
-
-
-# def admin_dashboard(request):
-#     isadmin = request.session.get('is_admin', None)
-#     if not isadmin :
-#         return redirect('admin_login')
-#     # Proceed to render the admin dashboard
-#     return render(request, 'admin_dashboard.html')
 
 #####################################################
 
@@ -587,14 +578,106 @@ def admin_login(request):
         else:
             messages.error(request, "Invalid username or password. Please try again.")
     
-    return render(request, 'admin_login.html')
-
+    return render(request, 'login.html')
+from django.db.models import Count
 
 def admin_dashboard(request):
-    print("hello")
-    isadmin = request.session.get('is_admin', None)
-    print(isadmin)
-    return render(request, 'admin_dashboard.html',{'is_admin': isadmin})
+    total_users = users.objects.count()
+    total_workers = Workers_Details.objects.count()
+    total_bookings = Bookings.objects.count()
+    total_services = Service_Details.objects.count()
+
+    # Get bookings by district in Kerala
+    kerala_districts = [
+        'Alappuzha', 'Ernakulam', 'Idukki', 'Kannur', 'Kasaragod', 
+        'Kollam', 'Kottayam', 'Kozhikode', 'Malappuram', 'Palakkad', 
+        'Pathanamthitta', 'Thiruvananthapuram', 'Thrissur', 'Wayanad'
+    ]
+
+    bookings_by_district = (
+        Bookings.objects.filter(state='Kerala')
+        .values('district')
+        .annotate(count=Count('id'))
+    )
+
+    district_counts = {district: 0 for district in kerala_districts}
+    for booking in bookings_by_district:
+        district_counts[booking['district']] = booking['count']
+
+    # Prepare data for the chart
+    districts = list(district_counts.keys())
+    counts = list(district_counts.values())
+
+    # Get count of registered workers based on services
+    services = Service_Details.objects.all()
+    service_counts = {service.service_name: Workers_Details.objects.filter(services__icontains=service.service_name).count() for service in services}
+
+    # Prepare data for the chart
+    service_names = list(service_counts.keys())
+    worker_counts = list(service_counts.values())
+
+    context = {
+        'total_users': total_users,
+        'total_workers': total_workers,
+        'total_bookings': total_bookings,
+        'total_services': total_services,
+        'districts': districts,
+        'district_counts': counts,
+        'service_names': service_names,
+        'worker_counts': worker_counts,
+    }
+
+    return render(request, 'admin_dashboard.html', context)
+
+import re
+from pdfminer.high_level import extract_text
+
+def extract_details_from_pdf(file_path):
+    """Extract text from PDF and search for specific patterns."""
+    text = extract_text(file_path)  # Extract text from the uploaded PDF
+    details = {}
+
+    # Regex patterns for required fields
+    patterns = {
+        "name": r"([A-Z][a-z]+(?:\s[A-Z][a-z]+)+)",  # Match names like "SABAHAMOL P HANEEFA"
+        "email": r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}",
+        "phone": r"\+?\d{10,15}",  # Match phone numbers
+        "qualification": r"(Bachelor|Master|MCA|BCA|Higher Secondary Education).*",
+        "skills": r"(Technical Skills|Skills|Skills:)\s*([A-Za-z, ]+)",  # Match skills
+        "experience": r"(Experience|Projects|Internship).*",
+        "linkedin": r"(https?://(www\.)?linkedin\.com/in/[a-zA-Z0-9-]+)"  # Match LinkedIn URL
+    }
+
+    # Extract and store matched fields
+    for key, pattern in patterns.items():
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            # For skills, we want the second capturing group
+            details[key] = match.group(2) if key == "skills" else match.group(0)
+        else:
+            details[key] = "Not Found"
+
+    return details
+from django.shortcuts import render
+from django.core.files.storage import FileSystemStorage
+
+def upload_resume(request):
+    if not request.session.get('is_admin'):
+        return redirect('login')
+    details = {}
+    if request.method == "POST" and request.FILES.get("resume"):
+        uploaded_file = request.FILES["resume"]
+        fs = FileSystemStorage()
+        file_path = fs.save(uploaded_file.name, uploaded_file)  # Save file in media directory
+        file_path = fs.path(file_path)  # Get file path for processing
+        
+        # Extract details from the uploaded file
+        details = extract_details_from_pdf(file_path)
+
+    return render(request, "upload_resume.html", {"details": details})
+
+
+
 
 
 def manage_users(request):
@@ -856,6 +939,7 @@ def booking(request):
     return render(request, 'bookings.html', context)
 
 
+
 def my_bookings(request):
     # Fetch bookings related to the logged-in user
     bookings = Bookings.objects.filter(user=request.session.get('user_id'))
@@ -864,6 +948,8 @@ def my_bookings(request):
         'bookings': bookings
     }
     return render(request, 'my_bookings.html', context)
+
+
 from .models import Bookings  # Make sure 'Booking' is the correct model name
 from datetime import datetime
 from .models import Bookings  # Import the model
@@ -878,6 +964,13 @@ def manage_bookings(request):
         return render(request, 'manage_bookings.html', context)
     else:
         return redirect('admin_login')  # Redirect to login if not admin
+    
+from .models import Service_Details
+def manage_services(request):
+    if request.session.get ('is_admin'):
+        services = Service_Details.objects.all()  # Fetch all services
+    return render(request, 'manage_services.html', {'services': services})
+
 
 
 from .models import Feedback
@@ -933,6 +1026,118 @@ def add_service(request):
         return redirect('add_service')  # Redirect to the same page or another page after adding the service
 
     return render(request, 'add_service.html')
+
+def delete_service(request, service_id):
+    if request.method == "POST":
+        service = get_object_or_404(Service_Details, id=service_id)
+        service.delete()
+        messages.success(request, "Service deleted successfully.")
+        return redirect('manage_services')  # Replace 'manage_services' with the actual name of your view/page
+    else:
+        messages.error(request, "Invalid request method.")
+        return redirect('manage_services')
+
+def edit_service(request, service_id):
+    service = get_object_or_404(Service_Details, id=service_id)
+
+    if request.method == 'POST':
+        service_name = request.POST.get('service_name')
+        description = request.POST.get('description')
+        price = request.POST.get('price')
+        service_image = request.FILES.get('service_image')
+
+        # Validate and update the service
+        if service_image and not service_image.name.endswith(('.png', '.jpg', '.jpeg')):
+            messages.error(request, "Service image must be a PNG or JPG file.")
+            return redirect('edit_service', service_id=service.id)
+
+        service.service_name = service_name
+        service.description = description
+        service.price = float(price)  # Convert price to float
+
+        if service_image:
+            service.service_image = service_image
+
+        service.save()
+        messages.success(request, "Service updated successfully!")
+        return redirect('manage_services')
+
+    return render(request, 'edit_service.html', {'service': service})
+# HomeServices/myapp/views.py
+from django.shortcuts import render, redirect
+from .models import Service_Details, ServiceList
+
+##############SUBSERVICELIST###############
+
+def add_service_list(request):
+    if not request.session.get('is_admin'):
+        return redirect('login')
+    if request.method == 'POST':
+        service_detail = Service_Details.objects.get(id=request.POST['service_detail'])
+        sub_service_name = request.POST['sub_service_name']
+        description = request.POST['description']
+        rate = request.POST['rate']
+        image = request.FILES.get('image')
+        
+
+        ServiceList.objects.create(
+            service_detail=service_detail,
+            sub_service_name=sub_service_name,
+            description=description,
+            rate=rate,
+            image=image
+        )
+         # Redirect to the same page or another page
+
+    service_details = Service_Details.objects.all()
+    return render(request, 'add_service_list.html', {'service_details': service_details})
+
+def service_details(request, service_id):# Fetch the service details using get_object_or_404 for better error handling
+    service = get_object_or_404(Service_Details, id=service_id)# Fetch the related sub-services from ServiceList
+    sub_services = ServiceList.objects.filter(service_detail=service)# Render the service details template with both service and sub-services
+    return render(request, 'service_details.html', {'service': service, 'sub_services': sub_services})
+
+
+def servicelist(request):
+    services = Service_Details.objects.all()
+    return render(request, 'service_list.html', {'services': services})
+from .models import ServiceList  # Ensure you import your ServiceList model
+
+def manage_subservice(request):
+       sub_services = ServiceList.objects.all()  # Fetch all sub-services
+       print(sub_services)
+       return render(request, 'manage_subservice.html', {'sub_services': sub_services})
+
+def edit_subservice(request, sub_service_id):
+    sub_service = get_object_or_404(ServiceList, id=sub_service_id)
+
+    if request.method == 'POST':
+        sub_service_name = request.POST.get('sub_service_name')
+        description = request.POST.get('description')
+        rate = request.POST.get('rate')
+        image = request.FILES.get('image')  # Get the uploaded image
+
+        sub_service.sub_service_name = sub_service_name
+        sub_service.description = description
+        sub_service.rate = rate
+        
+        # Only update image if a new one was uploaded
+        if image:
+            sub_service.image = image
+            
+        sub_service.save()
+
+        messages.success(request, "Sub-Service updated successfully!")
+        return redirect('manage_subservice')
+
+    return render(request, 'edit_subservice.html', {'sub_service': sub_service})
+
+def delete_subservice(request, sub_service_id):
+    sub_service = get_object_or_404(ServiceList, id=sub_service_id)
+    sub_service.delete()
+    messages.success(request, "Sub-Service deleted successfully!")
+    return redirect('manage_subservice')
+
 
 
 from django.shortcuts import render, redirect
@@ -1011,6 +1216,621 @@ def profile_image_view(request, filename):
         return FileResponse(open(file_path, 'rb'), content_type='image/jpeg')  # Adjust content type if needed
     except FileNotFoundError:
         raise Http404()
+        
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import logging
+from openai import OpenAI  # Import the OpenAI client
+
+# Set your OpenAI API key
+api_key = os.getenv('OPENAI_API_KEY')
+# Your DeepAI API key
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+# Initialize the OpenAI client
+client = OpenAI(api_key=api_key)
+
+@csrf_exempt  # Disable CSRF for this view (use with caution)
+def chatbot_response(request):
+    if request.method == 'POST':
+        user_message = request.POST.get('message')
+
+        if not user_message:
+            return JsonResponse({'error': 'No message provided'}, status=400)
+
+        try:
+            # Call the AI service to get a response
+            completion = client.chat.completions.create(
+                model="gpt-4o-mini",  # Use the appropriate model
+                messages=[{"role": "user", "content": user_message}]
+            )
+
+            # Log the full response for debugging
+            logger.info(f"OpenAI response: {completion}")
+
+            # Check if choices are available
+            if not completion.choices:
+                return JsonResponse({'error': 'No response from AI'}, status=500)
+
+            # Extract the AI's response using dot notation
+            ai_message = completion.choices[0].message.content  # Use dot notation here
+            return JsonResponse({'response': ai_message})
+
+        except Exception as e:
+            logger.error(f"Error fetching response from OpenAI: {e}")
+            return JsonResponse({'error': 'Failed to get response from AI'}, status=500)
+
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+
+
+# HomeServices/myapp/views.py
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import Bookings
+from django.views.decorators.http import require_POST
+
+@require_POST
+def accept_booking(request, booking_id):
+    try:
+        booking = Bookings.objects.get(id=booking_id)
+        booking.status = 'accepted'
+        booking.save()
+        return JsonResponse({'status': 'success'})
+    except Bookings.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Booking not found'}, status=404)
+
+from django.utils import timezone
+from datetime import datetime
+from django.views.decorators.http import require_POST
+
+@require_POST
+def request_start_timer(request, booking_id):
+    try:
+        booking = Bookings.objects.get(id=booking_id)
+        booking.status = 'timer_requested'
+        booking.save()
+        return JsonResponse({'status': 'success'})
+    except Bookings.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Booking not found'}, status=404)
+
+@require_POST
+def request_stop_timer(request, booking_id):
+    try:
+        booking = Bookings.objects.get(id=booking_id)
+        booking.status = 'stop_requested'
+        booking.timer_end = timezone.now()
+        
+        # Calculate and save the working time if timer_start exists
+        if booking.timer_start:
+            # Calculate duration between start and end time
+            duration = booking.timer_end - booking.timer_start
+            booking.working_time = duration
+            
+            # Log the times for verification
+            print(f"Timer Start: {booking.timer_start}")
+            print(f"Timer End: {booking.timer_end}")
+            print(f"Working Time: {duration}")
+        
+        booking.save()
+        return JsonResponse({
+            'status': 'success',
+            'working_time': str(booking.working_time) if booking.working_time else None
+        })
+    except Bookings.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Booking not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+def get_timer_start(request, booking_id):
+    try:
+        booking = Bookings.objects.get(id=booking_id)
+        if booking.timer_start:
+            return JsonResponse({'timer_start': booking.timer_start.isoformat()})
+        return JsonResponse({'timer_start': None})
+    except Bookings.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Booking not found'}, status=404)
+
+@require_POST
+def start_timer(request, booking_id):
+    try:
+        booking = Bookings.objects.get(id=booking_id)
+        booking.status = 'in_progress'
+        booking.timer_start = timezone.now()
+        booking.save()
+        return JsonResponse({'status': 'success'})
+    except Bookings.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Booking not found'}, status=404)
+
+@require_POST
+def accept_timer_start(request, booking_id):
+    try:
+        booking = Bookings.objects.get(id=booking_id)
+        booking.status = 'in_progress'
+        booking.timer_start = timezone.now()
+        booking.save()
+        return JsonResponse({'status': 'success'})
+    except Bookings.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Booking not found'}, status=404)
+
+@require_POST
+def reject_timer_start(request, booking_id):
+    try:
+        booking = Bookings.objects.get(id=booking_id)
+        booking.status = 'accepted'  # Revert to accepted status
+        booking.save()
+        return JsonResponse({'status': 'success'})
+    except Bookings.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Booking not found'}, status=404)
+
+@require_POST
+def confirm_stop_timer(request, booking_id):
+    try:
+        print(f"Confirming stop timer for booking {booking_id}")  # Debug log
+        booking = Bookings.objects.get(id=booking_id)
+        
+        print(f"Current status: {booking.status}")  # Debug log
+        booking.status = 'completed'
+        
+        # Ensure timer_end is set
+        if not booking.timer_end:
+            booking.timer_end = timezone.now()
+        
+        # Calculate final working time if not already set
+        if booking.timer_start and not booking.working_time:
+            booking.working_time = booking.timer_end - booking.timer_start
+            print(f"Calculated working time: {booking.working_time}")  # Debug log
+        
+        # Update worker status to available
+        if booking.worker:
+            booking.worker.status = "Available"
+            booking.worker.save()
+            print(f"Updated worker status to Available")  # Debug log
+        
+        booking.save()
+        print(f"Booking saved successfully")  # Debug log
+        
+        return JsonResponse({
+            'status': 'success',
+            'working_time': str(booking.working_time) if booking.working_time else None
+        })
+    except Bookings.DoesNotExist:
+        print(f"Booking {booking_id} not found")  # Debug log
+        return JsonResponse({
+            'status': 'error', 
+            'message': 'Booking not found'
+        }, status=404)
+    except Exception as e:
+        print(f"Error in confirm_stop_timer: {str(e)}")  # Debug log
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+@require_POST
+def reject_stop_timer(request, booking_id):
+    try:
+        booking = Bookings.objects.get(id=booking_id)
+        booking.status = 'in_progress'  # Revert to in_progress
+        booking.timer_end = None  # Clear the end time
+        booking.working_time = None  # Clear the working time
+        booking.save()
+        return JsonResponse({'status': 'success'})
+    except Bookings.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Booking not found'}, status=404)
+
+def send_bill(request, booking_id):
+    try:
+        booking = Bookings.objects.get(id=booking_id)
+        service = Service_Details.objects.get(service_name=booking.work)
+        
+        # Calculate total hours worked
+        total_hours = booking.working_time.total_seconds() / 3600  # Convert to hours
+        rate_per_hour = float(service.price)
+        total_amount = rate_per_hour * total_hours
+        
+        context = {
+            'booking': booking,
+            'service': service,
+            'total_hours': round(total_hours, 2),
+            'rate_per_hour': rate_per_hour,
+            'total_amount': round(total_amount, 2),
+            'working_time': booking.working_time
+        }
+        
+        if request.method == 'POST':
+            # Create payment record with uploaded files
+            payment = Payment.objects.create(
+                booking=booking,
+                amount=round(total_amount, 2),
+                rate_per_hour=rate_per_hour,
+                total_hours=round(total_hours, 2),
+                payment_status='pending',
+                additional_notes=request.POST.get('additional_notes', ''),
+                work_completion_image=request.FILES.get('work_completion_image'),
+                work_completion_video=request.FILES.get('work_completion_video')
+            )
+            
+            # Create bill content
+            bill_content = f"""
+            Bill for Service
+
+            Service: {booking.work}
+            Worker: {booking.worker.worker_name}
+            Date: {booking.booking_date}
+            Working Time: {booking.working_time}
+            Rate per Hour: ₹{rate_per_hour}
+            Total Hours: {round(total_hours, 2)}
+            Total Amount: ₹{round(total_amount, 2)}
+
+            Address: {booking.address_line}, {booking.city}
+            Phone: {booking.phone_number}
+            
+            Payment ID: {payment.id}
+            
+            Additional Notes:
+            {request.POST.get('additional_notes', '')}
+            
+            Thank you for using our service!
+            """
+            
+            # Send email
+            send_mail(
+                subject=f'Bill for {booking.work} Service',
+                message=bill_content,
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[booking.user.email],
+                fail_silently=False,
+            )
+            
+            # Update booking status
+            booking.status = 'billed'
+            booking.save()
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Bill sent successfully'
+            })
+        
+        # Handle GET request (showing the form)
+        return render(request, 'send_bill.html', context)
+        
+    except Exception as e:
+        print(f"Error in send_bill: {str(e)}")  # Debug log
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
+
+def payment_history(request):
+    # Check if user is logged in via session
+    worker_id = request.session.get('worker_id')
+    if not worker_id:
+        return redirect('login')
     
+    # Get all payments for bookings assigned to this worker
+    payments = Payment.objects.filter(
+        booking__worker_id=worker_id
+    ).order_by('-payment_date')
     
+    context = {
+        'payments': payments,
+        'username': request.session.get('user_name', 'Guest')
+    }
     
+    return render(request, 'payment_history.html', context)
+
+def user_payment_history(request):
+    # Get the user's ID from the session
+    user_id = request.session.get('user_id')
+    if not user_id:
+        return redirect('login')
+    
+    # Get all payments for bookings made by this user
+    payments = Payment.objects.filter(
+        booking__user_id=user_id
+    ).order_by('-payment_date')
+    
+    return render(request, 'user_payment_history.html', {
+        'payments': payments,
+        'username': request.session.get('user_name', 'Guest')
+    })
+
+import razorpay
+from django.conf import settings
+
+def initiate_payment(request, payment_id):
+    try:
+        payment = Payment.objects.get(id=payment_id)
+        
+        # Initialize Razorpay client
+        client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_SECRET_KEY))
+        
+        # Create Razorpay order
+        payment_amount = int(float(payment.amount) * 100)  # Convert to paise
+        razorpay_order = client.order.create({
+            'amount': payment_amount,
+            'currency': 'INR',
+            'payment_capture': 1
+        })
+        
+        # Update payment with razorpay order id
+        payment.razorpay_order_id = razorpay_order['id']
+        payment.save()
+        
+        context = {
+            'payment': payment,
+            'razorpay_key': settings.RAZORPAY_API_KEY,
+            'razorpay_order_id': razorpay_order['id'],
+            'callback_url': request.build_absolute_uri(reverse('payment_callback')),
+            'amount': payment_amount,
+            'currency': 'INR',
+            'email': payment.booking.user.email,
+            'username': payment.booking.user.username,
+        }
+        
+        return render(request, 'pay_now.html', context)
+        
+    except Payment.DoesNotExist:
+        return JsonResponse({'error': 'Payment not found'}, status=404)
+
+@csrf_exempt
+def payment_callback(request):
+    if request.method == "POST":
+        try:
+            # Get payment data
+            payment_id = request.POST.get('razorpay_payment_id', '')
+            razorpay_order_id = request.POST.get('razorpay_order_id', '')
+            signature = request.POST.get('razorpay_signature', '')
+            
+            # Initialize Razorpay client
+            client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY, settings.RAZORPAY_SECRET_KEY))
+            
+            # Verify payment signature
+            params_dict = {
+                'razorpay_payment_id': payment_id,
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_signature': signature
+            }
+            
+            try:
+                client.utility.verify_payment_signature(params_dict)
+                # Update payment status
+                payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
+                payment.payment_status = 'completed'
+                payment.razorpay_payment_id = payment_id
+                payment.save()
+                
+                return JsonResponse({'status': 'success'})
+            except:
+                return JsonResponse({'status': 'failed'})
+                
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+    
+    return JsonResponse({'status': 'invalid request'})
+#################################################################################################
+#######_SMART_DETECTION_######################3
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+import requests
+from django.http import JsonResponse, HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+import os
+from reportlab.lib import colors
+from django.core.files.base import ContentFile
+import io
+from django.utils import timezone
+import base64
+import google.generativeai as genai
+
+try:
+    import google.generativeai as genai
+    # Configure Gemini AI
+    genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
+
+    
+    # Test available models
+    for m in genai.list_models():
+        if 'generateContent' in m.supported_generation_methods:
+            print(m.name)
+            
+except ImportError:
+    print("Please install google-generativeai package using: pip install google-generativeai")
+    raise
+
+
+
+@csrf_exempt
+def detect_service(request):
+    if request.method == 'POST':
+        try:
+            print("Received request")  # Debug print
+            image = request.FILES.get('image')
+            if not image:
+                print("No image in request")  # Debug print
+                return JsonResponse({'error': 'No image provided'}, status=400)
+
+            print(f"Image received: {image.name}")  # Debug print
+
+            # Configure the API key
+            genai.configure(api_key=settings.GEMINI_API_KEY)
+
+            # Read image bytes
+            image_bytes = image.read()
+            
+            # Initialize Gemini Vision model with the latest version
+            model = genai.GenerativeModel('gemini-1.5-flash')  # Updated to the latest model
+            
+            # Create content parts
+            contents = [
+                {
+                    "parts": [
+                        {
+                            "text": """
+                            Analyze this image and provide a brief, concise response in the following format:
+
+                            🔍 Problem:
+                            [Short description of the visible damage/issue in 1-2 sentences]
+
+                            👨‍🔧 Service Provider:
+                            • Type: [Carpenter/Plumber/Electrician/Appliance Technician]
+                            • Expertise: [Basic/Expert]
+                            • Cost: [$XX - $XX]
+                            • DIY: [Yes/No]
+
+                            📝 Quick Fix Steps (3-4 steps max):
+                            1. [Brief step]
+                            2. [Brief step]
+                            3. [Brief step]
+
+                            ⚠️ Safety:
+                            • [2-3 key safety points only]
+                            • [Required tools]
+
+                            Keep all responses brief and actionable. Use simple language.
+                            """
+                        },
+                        {
+                            "inline_data": {
+                                "mime_type": image.content_type,
+                                "data": base64.b64encode(image_bytes).decode('utf-8')
+                            }
+                        }
+                    ]
+                }
+            ]
+            
+            print("Sending request to Gemini")  # Debug print
+            
+            # Generate response
+            response = model.generate_content(contents)
+            
+            if not response:
+                print("No response from model")  # Debug print
+                raise Exception("No response from AI model")
+
+            print("Got response from model")  # Debug print
+            
+            return JsonResponse({
+                'problem': response.text
+            })
+            
+        except Exception as e:
+            print(f"Error in service detection: {str(e)}")  # Debug print
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+def smart_view(request):
+    # Get the username for the home template
+    username = request.user.username if request.user.is_authenticated else None
+    return render(request, 'smart_detection.html', {'username': username})
+#pip install google-generativeai
+#pip install PyPDF2 python-docx python-pptx
+#pip install reportlab
+# views.py
+from django.http import JsonResponse
+from django.utils import timezone
+
+def get_booking_status(request):
+    try:
+        # Get the latest booking for the current user
+        latest_booking = Booking.objects.filter(
+            user=request.user
+        ).select_related(
+            'service',
+            'worker'
+        ).latest('created_at')
+
+        return JsonResponse({
+            'currentStep': latest_booking.status,
+            'service_type': latest_booking.service.service_name,
+            'worker_name': f"{latest_booking.worker.first_name} {latest_booking.worker.last_name}",
+            'location': latest_booking.service_location,
+            'price': str(latest_booking.service.price),
+            'booking_date': latest_booking.created_at.strftime('%B %d, %Y at %I:%M %p'),
+            'status_message': latest_booking.status_message,  # If you have any custom status message
+        })
+    except Booking.DoesNotExist:
+        return JsonResponse({
+            'error': 'No booking found',
+            'currentStep': 'none'
+        }, status=404)
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+from .models import WorkerLocation, Bookings
+import json
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def start_location_sharing(request):
+    try:
+        data = json.loads(request.body)
+        worker_id = data.get('worker_id')
+        booking_id = data.get('booking_id')
+        latitude = data.get('latitude', 0)
+        longitude = data.get('longitude', 0)
+
+        # Create or update worker location with sharing enabled
+        location, created = WorkerLocation.objects.update_or_create(
+            worker_id=worker_id,
+            booking_id=booking_id,
+            defaults={
+                'latitude': latitude,
+                'longitude': longitude,
+                'is_sharing': True
+            }
+        )
+
+        # Default destination (Kottayam coordinates)
+        destination = {
+            'lat': 9.5916,
+            'lng': 76.5222
+        }
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Location sharing started',
+            'destination': destination
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+@require_http_methods(["GET"])
+def get_worker_location(request, worker_id, booking_id):
+    try:
+        location = WorkerLocation.objects.filter(
+            worker_id=worker_id,
+            booking_id=booking_id,
+            is_sharing=True
+        ).latest('timestamp')
+
+        # Default destination (Kottayam)
+        destination = {
+            'lat': 9.5916,
+            'lng': 76.5222,
+            'name': 'Kottayam'
+        }
+
+        return JsonResponse({
+            'success': True,
+            'latitude': float(location.latitude),
+            'longitude': float(location.longitude),
+            'destination': destination,
+            'last_updated': location.timestamp.strftime('%H:%M:%S')
+        })
+    except WorkerLocation.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Location not found'
+        }, status=404)
+

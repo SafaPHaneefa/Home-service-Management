@@ -126,6 +126,11 @@
                 flex: 0 0 100%;
             }
         }
+        .error-message {
+            color: #b71c1c; /* Red color for error messages */
+            font-size: 0.9rem; /* Slightly smaller font size */
+            margin-top: 5px; /* Space above the error message */
+        }
     </style>
 </head>
 <body>
@@ -176,16 +181,25 @@
                     <div class="form-group">
                         <label for="worker_name">Name:</label>
                         <input type="text" name="worker_name" id="worker_name" required>
+                        {% if error_messages.worker_name %}
+                            <span class="error-message">{{ error_messages.worker_name }}</span>
+                        {% endif %}
                     </div>
 
                     <div class="form-group">
                         <label for="profile_image">Profile Image:</label>
-                        <input type="file" name="profile_image" id="profile_image">
+                        <input type="file" name="profile_image" id="profile_image" required>
+                        {% if error_messages.profile_image %}
+                            <span class="error-message">{{ error_messages.profile_image }}</span>
+                        {% endif %}
                     </div>
 
                     <div class="form-group">
                         <label for="email">Email:</label>
                         <input type="email" name="email" id="email" required>
+                        {% if error_messages.email %}
+                            <span class="error-message">{{ error_messages.email }}</span>
+                        {% endif %}
                     </div>
 
                     <div class="form-group">
@@ -199,6 +213,9 @@
                     <div class="form-group">
                         <label for="dob">Date of Birth:</label>
                         <input type="date" name="dob" id="dob" required>
+                        {% if error_messages.age %}
+                            <span class="error-message">{{ error_messages.age }}</span>
+                        {% endif %}
                     </div>
                     <div class="form-group">
                         <label for="state">State:</label>
@@ -224,11 +241,17 @@
                     <div class="form-group">
                         <label for="pincode">Pincode:</label>
                         <input type="text" name="pincode" id="pincode" required>
+                        {% if error_messages.pincode %}
+                            <span class="error-message">{{ error_messages.pincode }}</span>
+                        {% endif %}
                     </div>
 
                     <div class="form-group">
                         <label for="phone_no">Phone No:</label>
                         <input type="text" name="phone_no" id="phone_no" required>
+                        {% if error_messages.phone_no %}
+                            <span class="error-message">{{ error_messages.phone_no }}</span>
+                        {% endif %}
                     </div>
 
                     <div class="form-group">
@@ -245,7 +268,10 @@
 
                     <div class="form-group">
                         <label for="certificate">Certificate:</label>
-                        <input type="file" name="certificate" id="certificate">
+                        <input type="file" name="certificate" id="certificate" required>
+                        {% if error_messages.certificate %}
+                            <span class="error-message">{{ error_messages.certificate }}</span>
+                        {% endif %}
                     </div>
 
                     <div class="form-group">
@@ -259,7 +285,10 @@
 
                     <div class="form-group">
                         <label for="resume">Resume:</label>
-                        <input type="file" name="resume" id="resume">
+                        <input type="file" name="resume" id="resume" required>
+                        {% if error_messages.resume %}
+                            <span class="error-message">{{ error_messages.resume }}</span>
+                        {% endif %}
                     </div>
 
                     <button type="submit">Register</button>

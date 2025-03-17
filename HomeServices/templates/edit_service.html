@@ -1,0 +1,76 @@
+{% extends 'admin_dashboard.html' %}
+{% load static %}
+
+{% block content %}
+<div class="service-container">
+    <h2>Edit Service</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="service_image">Service Image:</label>
+        <input type="file" name="service_image" id="service_image" accept="image/*">
+
+        <label for="service_name">Service Name:</label>
+        <input type="text" name="service_name" id="service_name" value="{{ service.service_name }}" required>
+
+        <label for="description">Description:</label>
+        <textarea name="description" id="description" required>{{ service.description }}</textarea>
+
+        <label for="price">Price for 1 hour:</label>
+        <input type="number" name="price" id="price" value="{{ service.price }}" step="0.01" required>
+
+        <button type="submit">Save Changes</button>
+    </form>
+</div>
+
+<style>
+    .service-container {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        max-width: 600px;
+        margin: 20px auto; /* Center the container */
+    }
+
+    h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 24px;
+    }
+
+    label {
+        margin-bottom: 5px;
+        color: #555;
+        font-weight: bold;
+    }
+
+    input, textarea {
+        padding: 12px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 16px;
+    }
+
+    button {
+        padding: 12px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+        width: 100%; /* Full width button */
+    }
+
+    button:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}

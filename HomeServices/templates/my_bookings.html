@@ -1,106 +1,1108 @@
-<!-- my_bookings.html -->
+<!-- HomeServices/templates/my_bookings.html --!>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="utf-8">
+    <title>Home Star - My Bookings</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    
+    <!-- Favicon -->
+    <link href="{% static 'img/favicon.ico' %}" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Poppins:wght@600;700&display=swap" rel="stylesheet"> 
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="{% static 'lib/animate/animate.min.css' %}" rel="stylesheet">
+    <link href="{% static 'lib/owlcarousel/assets/owl.carousel.min.css' %}" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+    <!-- Add these in the head section after other CSS links -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            line-height: 1.6;
         }
 
         .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 2000px;
+            margin: 2rem auto;
+            padding: 30px;
+            background-color: #f1d8d8;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
         }
 
         h2 {
             text-align: center;
-            color: #007bff;
-            margin-bottom: 20px;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            font-weight: 600;
         }
 
         .booking-list {
-            margin-top: 20px;
+            margin-top: 06px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 20px;
         }
 
         .booking-details {
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            border: none;
+            border-radius: 16px;
             padding: 15px;
-            background-color: #f9f9f9;
-            transition: box-shadow 0.3s;
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.4s ease;
         }
 
-        .booking-details:hover {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
         }
 
-        .booking-details h5 {
-            color: #333;
+        .booking-content {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 10px;
+            align-items: baseline;
         }
 
-        .booking-details p {
-            margin: 5px 0;
+        .booking-content strong {
+            color: #2d3748;
+            min-width: 140px;
+        }
+
+        .status-container {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            gap: 8px;
+        }
+
+        .status-badge i {
+            font-size: 1.2rem;
+        }
+
+        .status-badge.pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 2px solid #ffeeba;
+        }
+
+        .status-badge.in-progress {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .status-badge.completed {
+            background: #d1e7dd;
+            color: #0f5132;
+            border: 2px solid #badbcc;
+        }
+
+        .status-badge.billed {
+            background: #cfe2ff;
+            color: #084298;
+            border: 2px solid #b6d4fe;
+        }
+
+        .status-badge.timer-requested {
+            background: #fff3cd;
+            color: #664d03;
+            border: 2px solid #ffecb5;
+        }
+
+        .status-badge.stop-requested {
+            background: #f8d7da;
+            color: #842029;
+            border: 2px solid #f5c2c7;
+        }
+
+        .status-badge::before {
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+
+        .status-badge.pending::before {
+            content: "\f017"; /* Clock icon */
+            color: #856404;
+        }
+
+        .status-badge.in-progress::before {
+            content: "\f110"; /* Spinner icon */
+            color: #155724;
+            animation: spin 2s linear infinite;
+        }
+
+        .status-badge.completed::before {
+            content: "\f00c"; /* Check icon */
+            color: #0f5132;
+        }
+
+        .status-badge.billed::before {
+            content: "\f155"; /* Dollar icon */
+            color: #084298;
+        }
+
+        .status-badge.timer-requested::before {
+            content: "\f254"; /* Hourglass icon */
+            color: #664d03;
+        }
+
+        .status-badge.stop-requested::before {
+            content: "\f04d"; /* Stop icon */
+            color: #842029;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .worker-info {
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 15px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .timer-display {
+            background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .timer-display #timer {
+            font-size: 1.5rem;
+            color: #1565C0;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: flex-end;
         }
 
         .btn {
-            background-color: #007bff;
-            color: white;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
             border: none;
-            border-radius: 4px;
-            padding: 10px 15px;
             cursor: pointer;
-            transition: background-color 0.3s;
         }
 
-        .btn:hover {
-            background-color: #0056b3;
+        .btn::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: -100%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .btn:hover::after {
+            left: 100%;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(145deg, #78838a, #5a6268);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(145deg, #5a6268, #444d52);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-success {
+            background: linear-gradient(145deg, #34c759, #28a745);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(145deg, #28a745, #208838);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(145deg, #ff3b30, #dc3545);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: linear-gradient(145deg, #dc3545, #c82333);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(145deg, #2196f3, #1a73e8);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(145deg, #1a73e8, #1557b0);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(33, 150, 243, 0.3);
+        }
+
+        #timer {
+            font-family: 'Courier New', monospace;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1a73e8;
+            background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+            padding: 12px 20px;
+            border-radius: 12px;
+            display: inline-block;
+            margin: 15px 0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        #timer:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 1rem;
+                padding: 20px;
+            }
+
+            .booking-list {
+                grid-template-columns: 1fr;
+            }
+
+            .worker-info {
+                grid-template-columns: 1fr;
+            }
+
+            .booking-content {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media print {
             .btn {
-                display: none; /* Hide print button when printing */
+                display: none;
             }
+            
+            .container {
+                box-shadow: none;
+                margin: 0;
+                padding: 15px;
+            }
+
+            .booking-details {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+
+        .logo-img {
+            height: 100px;
+            width: 160px;
+            object-fit: contain;
+            margin-bottom: 20px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar {
+            background-color: #f8f9fa;
+            color: white;
+            height: 100vh;
+            width: 200px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            padding-top: 120px;
+        }
+
+        .sidebar .nav-link {
+            color: rgb(78, 5, 61);
+            font-size: 18px;
+            padding: 15px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .nav-link i {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .sidebar .nav-link:hover {
+            color: hsl(273, 84%, 60%);
+            background-color: rgba(0, 0, 0, 0.05);
+            transform: translateX(5px);
+        }
+
+        .col-md-9 {
+            margin-left: 200px;
+            padding: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding-top: 20px;
+            }
+            
+            .col-md-9 {
+                margin-left: 0;
+            }
+        }
+
+        .location-tracking-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 800px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+
+        .modal-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .worker-details {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .worker-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .worker-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .status-info {
+            display: grid;
+            gap: 10px;
+        }
+
+        #tracking-map {
+            height: 400px;
+            width: 100%;
+            border: none;
+        }
+
+        .location-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .eta-box, .distance-box {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .value {
+            display: block;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-top: 4px;
         }
     </style>
 </head>
-<div class="container mt-4">
-    <a href="{% url 'home' %}" class="btn btn-secondary mb-3">Back to Home</a> 
-<div class="container mt-4">
-    <h2>My Bookings</h2>
-    
-    {% if bookings %}
-        <div class="booking-list">
-            {% for booking in bookings %}
-                <div class="booking-details border p-3 mb-3 bg-light">
-                    <h5>Service: {{ booking.work }}</h5>
-                    <p><strong>Booking Date:</strong> {{ booking.booking_date }}</p>
-                    <p><strong>Booking Time:</strong> {{ booking.booking_time }}</p>
-                    <p><strong>Address:</strong> {{ booking.street_number }}, {{ booking.city }}, {{ booking.district }}, {{ booking.state }}</p>
-                    <p><strong>Work Description:</strong> {{ booking.work_description }}</p>
-                    <p><strong>Phone Number:</strong> {{ booking.phone_number }}</p>
-                    
-                    <!-- Display price and details from the associated worker -->
-                    {% if booking.worker %}
-                        <p><strong>Service Type:</strong> {{ booking.worker.services }}</p>
+<body>
+    <!-- Navbar Start -->
+    <nav class="navbar navbar-expand-lg bg-red navbar-light sticky-top px-4 px-lg-5 py-lg-0">
+        <a href="index.html" class="navbar-brand d-flex align-items-center">
+            <h1 class="m-0">
+                <img src="{% static 'img/hstar.png' %}" class="me-3" style="height: 100px; width:160px;">
+            </h1>
+        </a>
+        <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <div class="navbar-nav ms-auto py-3 py-lg-0">
+                <a href="{% url 'home' %}" class="nav-item nav-link active">Home</a>
+                <a href="{% url 'service' %}" class="nav-item nav-link">Our Services</a>
+                <a href="{% url 'booking'%}" class="nav-item nav-link" id="booking">Book Service</a>
+                <a href="{% url 'feedback_form' %}" class="nav-item nav-link">Feedback</a>
 
-                        <p><strong>Worker Name:</strong> {{ booking.worker.worker_name }}</p>
-                        <p><strong>Worker Email:</strong> {{ booking.worker.email }}</p>
-                        <p><strong>Worker Phone:</strong> {{ booking.worker.phone_no }}</p>
-                        <p><strong>Worker Experience:</strong> {{ booking.worker.experience }}</p>
-                        <p><strong>Worker Status:</strong> {{ booking.worker.status }}</p>
-                    {% else %}
-                        <p>No worker assigned for this booking.</p>
-                    {% endif %}
-                    
-                    <button onclick="window.print()" class="btn btn-primary mt-3">Print Booking</button>
+                <div class="profile-container">
+                    <img src="{% static 'img/icon.png' %}" alt="Profile Icon" class="profile-icon" style="width:40px; height:40px; border-radius:50%;">
+                    <div class="nav-item dropdown">
+                        <span class="username">{{ username }}</span>
+                        <div class="dropdown-menu bg-light m-0">
+                            <a href="{% url 'logout_view' %}" class="nav-item nav-link">Logout</a>
+                        </div>
+                    </div>
                 </div>
-            {% endfor %}
+            </div>
         </div>
-    {% else %}
-        <p>No bookings found.</p>
-    {% endif %}
-</div>
+    </nav>
+    <!-- Navbar End -->
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar Start -->
+            <div class="col-md-3 bg-light sidebar">
+                <div class="sidebar-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'view_profile' %}">
+                                <i class="fas fa-user"></i> View Profile
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'update' %}">
+                                <i class="fas fa-edit"></i> Update
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'my_bookings' %}">
+                                <i class="fas fa-book"></i> My Bookings
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'user_payment_history' %}">
+                                <i class="fas fa-credit-card"></i> Payments
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'smart_view' %}">
+                                <i class="fas fa-robot"></i> Smart Detection 
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Sidebar End -->
+
+            <!-- Main Content Start -->
+            <div class="col-md-9">
+                <div class="container mt-4">
+                    <a href="{% url 'home' %}" class="btn btn-secondary mb-3">Back to Home</a> 
+
+                    
+                    <h2>My Bookings</h2>
+                    
+                    {% if bookings %}
+                        <div class="booking-list">
+                            {% for booking in bookings %}
+                                <div class="booking-details">
+                                    <div class="booking-header">
+                                        <h5>Service: {{ booking.work }}</h5>
+                                        <div class="status-badge {{ booking.status|lower }}">
+                                            {% if booking.status == 'completed' and booking.is_billed %}
+                                                <i class="fas fa-check-circle"></i>
+                                            {% elif booking.status == 'pending' %}
+                                                <i class="fas fa-clock"></i>
+                                            {% endif %}
+                                            {{ booking.status }}
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="booking-content">
+                                        <strong>Booking Date:</strong>
+                                        <span>{{ booking.booking_date }}</span>
+                                        
+                                        <strong>Booking Time:</strong>
+                                        <span>{{ booking.booking_time }}</span>
+                                        
+                                        <strong>Address:</strong>
+                                        <span>{{ booking.street_number }}, {{ booking.city }}, {{ booking.district }}, {{ booking.state }}</span>
+                                        
+                                        <strong>Work Description:</strong>
+                                        <span>{{ booking.work_description }}</span>
+                                        
+                                        <strong>Phone Number:</strong>
+                                        <span>{{ booking.phone_number }}</span>
+                                    </div>
+
+                                    {% if booking.status == 'timer_requested' %}
+                                        <div class="status-container">
+                                            <span>Worker has requested to start the service</span>
+                                            <div class="action-buttons">
+                                                <button class="btn btn-success" onclick="acceptTimerStart({{ booking.id }})">Start</button>
+                                                <button class="btn btn-danger" onclick="rejectTimerStart({{ booking.id }})">Reject</button>
+                                            </div>
+                                        </div>
+                                    {% elif booking.status == 'in_progress' %}
+                                        <div class="timer-display">
+                                            <span>Service in progress</span>
+                                            <div id="timer-{{ booking.id }}">00:00:00</div>
+                                        </div>
+                                    {% elif booking.status == 'stop_requested' %}
+                                        <div class="status-container">
+                                            <span>Worker has requested to stop the service</span>
+                                            <p>Total working time: {{ booking.working_time }}</p>
+                                            <div class="action-buttons">
+                                                <button class="btn btn-success" onclick="confirmStopTimer({{ booking.id }})">Confirm Stop</button>
+                                                <button class="btn btn-danger" onclick="rejectStopTimer({{ booking.id }})">Reject Stop</button>
+                                            </div>
+                                        </div>
+                                    {% elif booking.status == 'accepted' %}
+                                        <div class="tracking-controls">
+                                            <button class="btn btn-primary track-worker-btn" 
+                                                    onclick="trackWorker('{{ booking.id }}', '{{ booking.worker.id }}')"
+                                                    data-booking-id="{{ booking.id }}">
+                                                <i class="fas fa-map-marker-alt"></i> Track Worker
+                                            </button>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if booking.worker %}
+                                        <div class="worker-info">
+                                            <div>
+                                                <strong>Service Type:</strong>
+                                                <p>{{ booking.worker.services }}</p>
+                                            </div>
+                                            <div>
+                                                <strong>Worker Name:</strong>
+                                                <p>{{ booking.worker.worker_name }}</p>
+                                            </div>
+                                            <div>
+                                                <strong>Worker Phone:</strong>
+                                                <p>{{ booking.worker.phone_no }}</p>
+                                            </div>
+                                            <div>
+                                                <strong>Worker Status:</strong>
+                                                <p>{{ booking.worker.status }}</p>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>No bookings found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'lib/wow/wow.min.js' %}"></script>
+    <script src="{% static 'lib/easing/easing.min.js' %}"></script>
+    <script src="{% static 'lib/waypoints/waypoints.min.js' %}"></script>
+    <script src="{% static 'lib/owlcarousel/owl.carousel.min.js' %}"></script>
+
+    <!-- Template Javascript -->
+    <script src="{% static 'js/main.js' %}"></script>
+
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function acceptTimerStart(bookingId) {
+            fetch(`/accept_timer_start/${bookingId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                }
+            });
+        }
+
+        function rejectTimerStart(bookingId) {
+            fetch(`/reject_timer_start/${bookingId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                }
+            });
+        }
+
+        function confirmStopTimer(bookingId) {
+            fetch(`/confirm_stop_timer/${bookingId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log('Timer stopped successfully');
+                    location.reload();
+                } else {
+                    console.error('Error:', data.message);
+                    alert('Error stopping timer: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error stopping timer. Please try again.');
+            });
+        }
+
+        function rejectStopTimer(bookingId) {
+            fetch(`/reject_stop_timer/${bookingId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                }
+            });
+        }
+
+        // Timer update function (same as in worker_bookings.html)
+        function updateTimer(bookingId, startTime) {
+            const timerElement = document.getElementById(`timer-${bookingId}`);
+            if (!timerElement) return;
+
+            setInterval(() => {
+                const now = new Date();
+                const start = new Date(startTime);
+                const diff = now - start;
+                
+                const hours = Math.floor(diff / 3600000);
+                const minutes = Math.floor((diff % 3600000) / 60000);
+                const seconds = Math.floor((diff % 60000) / 1000);
+                
+                timerElement.textContent = 
+                    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        // Initialize timers for in-progress bookings
+        document.addEventListener('DOMContentLoaded', () => {
+            const inProgressBookings = document.querySelectorAll('[id^="timer-"]');
+            inProgressBookings.forEach(timer => {
+                const bookingId = timer.id.split('-')[1];
+                fetch(`/get_timer_start/${bookingId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.timer_start) {
+                            updateTimer(bookingId, data.timer_start);
+                        }
+                    });
+            });
+        });
+
+        function trackWorker(bookingId, workerId) {
+            // Show tracking modal
+            const modal = document.getElementById('locationTrackingModal');
+            modal.style.display = 'block';
+
+            // Initialize map if not already done
+            if (!map) {
+                map = L.map('tracking-map').setView([8.5241, 76.9366], 13);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+            }
+
+            // Start periodic updates
+            const updateInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/api/worker-location/${workerId}/${bookingId}/`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        if (!workerMarker) {
+                            workerMarker = L.marker([data.latitude, data.longitude]).addTo(map);
+                        } else {
+                            workerMarker.setLatLng([data.latitude, data.longitude]);
+                        }
+                        
+                        map.setView([data.latitude, data.longitude], 13);
+                    }
+                } catch (error) {
+                    console.error('Error fetching worker location:', error);
+                }
+            }, 10000);
+
+            // Store interval ID for cleanup
+            window.currentUpdateInterval = updateInterval;
+        }
+    </script>
+
+    <!-- Add the map modal -->
+    <div class="location-tracking-modal" id="locationTrackingModal">
+        <div class="modal-header">
+            <div class="modal-title">
+                <i class="fas fa-map-marker-alt"></i>
+                <h4>Live Worker Tracking</h4>
+            </div>
+            <button type="button" class="close-btn" id="closeTrackingModal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="modal-body">
+            <div class="tracking-stats">
+                <div class="stat-card">
+                    <i class="fas fa-clock"></i>
+                    <div class="stat-info">
+                        <label>ETA</label>
+                        <span id="eta">Calculating...</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-road"></i>
+                    <div class="stat-info">
+                        <label>Distance</label>
+                        <span id="distance-value">Calculating...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="map-container">
+                <div id="tracking-map"></div>
+                <div class="map-overlay-controls">
+                    <button class="control-btn zoom-in" onclick="workerTracker.zoomIn()">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="control-btn zoom-out" onclick="workerTracker.zoomOut()">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button class="control-btn compass" onclick="workerTracker.resetNorth()">
+                        <i class="fas fa-compass"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="map-controls">
+                <button class="map-btn" onclick="workerTracker.centerOnWorker()">
+                    <i class="fas fa-crosshairs"></i> Center on Worker
+                </button>
+                <button class="map-btn" onclick="workerTracker.toggleTraffic()">
+                    <i class="fas fa-car"></i> Toggle Traffic
+                </button>
+                <button class="map-btn" onclick="workerTracker.refreshRoute()">
+                    <i class="fas fa-sync"></i> Refresh Route
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this before the closing </body> tag -->
+    <script>
+    class WorkerTracker {
+        constructor() {
+            this.map = null;
+            this.workerMarker = null;
+            this.destinationMarker = null;
+            this.routingControl = null;
+            this.updateInterval = null;
+            this.trafficLayer = null;
+        }
+
+        async initialize(workerId, bookingId, destinationLat, destinationLng) {
+            // Show modal
+            const modal = document.getElementById('locationTrackingModal');
+            modal.style.display = 'block';
+
+            // Initialize map
+            this.map = L.map('tracking-map', {
+                zoomControl: false,
+                dragging: true,
+                touchZoom: true,
+                scrollWheelZoom: true,
+                doubleClickZoom: true
+            });
+
+            // Add tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 19
+            }).addTo(this.map);
+
+            // Create custom markers
+            const workerIcon = L.divIcon({
+                className: 'worker-marker',
+                html: '<i class="fas fa-hard-hat" style="color: #2196F3; font-size: 24px;"></i>',
+                iconSize: [30, 30]
+            });
+
+            const destinationIcon = L.divIcon({
+                className: 'destination-marker',
+                html: '<i class="fas fa-map-marker-alt" style="color: #4CAF50; font-size: 24px;"></i>',
+                iconSize: [30, 30]
+            });
+
+            // Add destination marker
+            this.destinationMarker = L.marker([destinationLat, destinationLng], {
+                icon: destinationIcon
+            }).addTo(this.map);
+
+            // Start tracking updates
+            this.startTracking(workerId, bookingId);
+        }
+
+        async startTracking(workerId, bookingId) {
+            this.updateInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/api/worker-location/${workerId}/${bookingId}/`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const { latitude, longitude } = data;
+                        
+                        // Update or create worker marker
+                        if (!this.workerMarker) {
+                            this.workerMarker = L.marker([latitude, longitude], {
+                                icon: L.divIcon({
+                                    className: 'worker-marker',
+                                    html: '<i class="fas fa-hard-hat"></i>',
+                                    iconSize: [30, 30]
+                                })
+                            }).addTo(this.map);
+                        } else {
+                            this.workerMarker.setLatLng([latitude, longitude]);
+                        }
+
+                        // Update routing if exists
+                        if (this.routingControl) {
+                            this.routingControl.setWaypoints([
+                                L.latLng(latitude, longitude),
+                                this.destinationMarker.getLatLng()
+                            ]);
+                        }
+
+                        // Update ETA and distance
+                        document.getElementById('eta').textContent = data.eta || 'Calculating...';
+                        document.getElementById('distance-value').textContent = data.distance || 'Calculating...';
+
+                        // Center map if this is the first update
+                        if (!this.hasInitialCenter) {
+                            this.map.setView([latitude, longitude], 13);
+                            this.hasInitialCenter = true;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error updating worker location:', error);
+                }
+            }, 5000); // Update every 5 seconds
+        }
+
+        zoomIn() {
+            if (this.map) this.map.zoomIn();
+        }
+
+        zoomOut() {
+            if (this.map) this.map.zoomOut();
+        }
+
+        resetNorth() {
+            if (this.map) this.map.setBearing(0);
+        }
+
+        centerOnWorker() {
+            if (this.map && this.workerMarker) {
+                this.map.setView(this.workerMarker.getLatLng(), 15);
+            }
+        }
+
+        toggleTraffic() {
+            if (this.trafficLayer) {
+                this.map.removeLayer(this.trafficLayer);
+                this.trafficLayer = null;
+            } else {
+                this.trafficLayer = L.tileLayer('https://tile.openstreetmap.org/traffic/{z}/{x}/{y}.png', {
+                    maxZoom: 19
+                }).addTo(this.map);
+            }
+        }
+
+        refreshRoute() {
+            if (this.workerMarker && this.destinationMarker) {
+                if (!this.routingControl) {
+                    this.routingControl = L.Routing.control({
+                        waypoints: [
+                            this.workerMarker.getLatLng(),
+                            this.destinationMarker.getLatLng()
+                        ],
+                        routeWhileDragging: false,
+                        lineOptions: {
+                            styles: [{ color: '#2196F3', weight: 4, opacity: 0.8 }]
+                        }
+                    }).addTo(this.map);
+                } else {
+                    this.routingControl.setWaypoints([
+                        this.workerMarker.getLatLng(),
+                        this.destinationMarker.getLatLng()
+                    ]);
+                }
+            }
+        }
+
+        cleanup() {
+            if (this.updateInterval) {
+                clearInterval(this.updateInterval);
+            }
+            if (this.map) {
+                this.map.remove();
+                this.map = null;
+            }
+        }
+    }
+
+    let workerTracker = null;
+
+    function trackWorker(bookingId, workerId) {
+        if (!workerTracker) {
+            workerTracker = new WorkerTracker();
+        }
+        // Initialize with the booking's destination coordinates
+        workerTracker.initialize(workerId, bookingId, 9.5916, 76.5222); // Default to Kottayam coordinates
+    }
+
+    // Close button handler
+    document.getElementById('closeTrackingModal').onclick = function() {
+        const modal = document.getElementById('locationTrackingModal');
+        modal.style.display = 'none';
+        
+        if (workerTracker) {
+            workerTracker.cleanup();
+            workerTracker = null;
+        }
+    };
+    </script>
+</body>
+</html>

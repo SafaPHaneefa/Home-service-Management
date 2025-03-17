@@ -52,7 +52,7 @@
         }
 
         .sidebar ul li a:hover, .sidebar ul li a.active {
-            background-color: #e6e6e6;
+            background-color: #ec88c2;
         }
 
         .main-content {
@@ -106,6 +106,96 @@
             font-size: 0.9em;
             color: #777;
         }
+
+        .dashboard-cards {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .card {
+            flex: 1;
+            margin: 10px;
+            border-radius: 10px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .card-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .card-text {
+            font-size: 16px;
+            color: #ffffff;
+        }
+
+        .bg-primary {
+            background-color: #007bff !important;
+        }
+
+        .bg-success {
+            background-color: #28a745 !important;
+        }
+
+        .bg-warning {
+            background-color: #ffc107 !important;
+        }
+
+        .bg-danger {
+            background-color: #dc3545 !important;
+        }
+
+        .btn-light {
+            color: #333;
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-light:hover {
+            background-color: rgba(233, 173, 173, 0.6);
+        }
+
+        .card-body i {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgb(49, 48, 48);
+        }
+
+        #districtBookingsChart {
+            width: 70%; /* Adjust width as needed */
+            float: right; /* Align chart to the right */
+        }
+        .chart-container {
+            display: flex;
+            justify-content: space-between; /* Space between chart and legend */
+            align-items: center; /* Center align items vertically */
+        }
+
+        #districtBookingsChart, #serviceWorkersChart {
+            width: 100%; /* Make charts take full width of their container */
+            height: 400px; /* Set a fixed height for the charts */
+        }
     </style>
 </head>
 <body>
@@ -126,39 +216,76 @@
             <div class="sidebar">
                 <h2>Admin Dashboard</h2>
                 <ul>
-                    <li><a href="#" class="active">Dashboard</a></li>
-                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                    <li><a href="{% url 'admin_dashboard' %}"><i class="fas fa-tachometer-alt"></i>  Dashboard</a></li>
+                    <li><a href="{% url 'manage_users' %}"><i class="fas fa-users"></i>  Manage Users</a></li>
+                    <li><a href="{% url 'manage_workers' %}"><i class="fas fa-user-tie"></i>   Manage Workers</a></li>
+                    <li><a href="{% url 'add_service' %}"><i class="fas fa-plus"></i>   Add Service</a></li>
+                    <li><a href="{% url 'admin_add_service_list' %}"><i class="fas fa-star"></i> Add Sub Service</a></li>
+                    <li><a href="{% url 'manage_subservice' %}"><i class="fas fa-star"></i> Manage Sub Service</a></li>
+                    <li><a href="{% url 'manage_bookings' %}"><i class="fas fa-calendar-alt"></i>   Bookings</a></li>
+                    <li><a href="{% url 'manage_services' %}" id="manage_services"><i class="fas fa-tools"></i>   Manage Services</a></li>
+                    <li><a href="{% url 'add_announcement' %}" id="adminadd"><i class="fas fa-bullhorn"></i>   Add Announcement</a></li>
+                    <li><a href="{% url 'upload_resume' %}"><i class="fas fa-file-upload"></i>   Resume Details</a></li>
+                    <li><a href="{% url 'logout' %}"><i class ="fas fa-sign-out-alt"></i>   Logout</a></li>
                 </ul>
             </div>
 
             <!-- Main Content Area -->
             <div class="main-content">
-                <div class="function-buttons">
-                    <a href="{% url 'manage_users' %}" class="function-button" id="manage_users">
-                        <i class="fas fa-users"></i> <!-- Icon for Manage Users -->
-                        <h3>Manage Users</h3>
-                        <p>View and manage user accounts</p>
-                    </a>
-                    <a href="{% url 'manage_workers' %}" class="function-button" id="worker">
-                        <i class="fas fa-user-tie"></i> <!-- Icon for Manage Workers -->
-                        <h3>Manage Workers</h3>
-                        <p>Oversee worker profiles and assignments</p>
-                    </a>
-                    <a href="{% url 'add_service' %}" class="function-button">
-                        <i class="fas fa-plus-circle"></i> <!-- Icon for Add Service -->
-                        <h3>Add Service</h3>
-                        <p>Create new services for customers</p>
-                    </a>
-                    <a href="{% url 'manage_bookings' %}" class="function-button">
-                        <i class="fas fa-calendar-check"></i> <!-- Icon for Manage Bookings -->
-                        <h3>Manage Bookings</h3>
-                        <p>View and manage customer bookings</p>
-                    </a>
-                    <a href="{% url 'add_announcement' %}" class="function-button" id="adminadd">
-                        <i class="fas fa-bullhorn"></i> <!-- Icon for Add Announcement -->
-                        <h3>Add Announcement</h3>
-                        <p>Create and publish announcements</p>
-                    </a>
+                <div class="dashboard-cards">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <i class="fas fa-users fa-2x"></i>
+                            <h5 class="card-title">{{ total_users }}</h5>
+                            <p class="card-text">New Users</p>
+                        </div>
+                    </div>
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <i class="fas fa-user-tie fa-2x"></i>
+                            <h5 class="card-title">{{ total_workers }}</h5>
+                            <p class="card-text">Total Workers</p>
+                        </div>
+                    </div>
+                    <div class="card bg-warning text-dark">
+                        <div class="card-body">
+                            <i class="fas fa-calendar-check fa-2x"></i>
+                            <h5 class="card-title">{{ total_bookings }}</h5>
+                            <p class="card-text">Total Bookings</p>
+                        </div>
+                    </div>
+                    <div class="card bg-danger text-white">
+                        <div class="card-body">
+                            <i class="fas fa-cogs fa-2x"></i>
+                            <h5 class="card-title">{{ total_services }}</h5>
+                            <p class="card-text">Total Services</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Include Chart.js -->
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <!-- Include the 3D plugin -->
+                <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-3d"></script>
+
+                <!-- Pie Chart Section -->
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow-sm p-4">
+                            <h4 class="text-center">Bookings by District in Kerala</h4>
+                            <div class="chart-container">
+                                <canvas id="districtBookingsChart" style="max-height: 400px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card shadow-sm p-4">
+                            <h4 class="text-center">Registered Workers by Service</h4>
+                            <div class="chart-container">
+                                <canvas id="serviceWorkersChart" style="max-height: 400px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {% block content %}
@@ -167,10 +294,116 @@
         </div>
 
         <footer>
-            <p>&copy; {{ current_year }} Your Company Name</p>
-        </footer>
+        </div>
     {% else %}
         <script>window.location.href = "{% url 'admin_login' %}";</script>
     {% endif %}
+
+    <script>
+        const themeToggleButton = document.getElementById('theme-toggle');
+        const body = document.body;
+
+        themeToggleButton.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+
+            // Change button text based on the current mode
+            if (body.classList.contains('dark-mode')) {
+                themeToggleButton.textContent = 'Switch to Light Mode';
+            } else {
+                themeToggleButton.textContent = 'Switch to Dark Mode';
+            }
+        });
+    </script>
+
+    <script>
+        // District Bookings Chart Configuration
+        const districtBookingsConfig = {
+            type: 'pie',
+            data: {
+                labels: {{ districts|safe }},
+                datasets: [{
+                    label: 'Bookings',
+                    data: {{ district_counts|safe }},
+                    backgroundColor: [
+                        '#007bff', '#28a745', '#ffc107', '#dc3545', 
+                        '#17a2b8', '#6c757d', '#ff5733', '#c70039', 
+                        '#900c3f', '#581845', '#f39c12', '#e74c3c', 
+                        '#8e44ad', '#3498db'
+                    ],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'left',
+                        align: 'start',
+                    }
+                }
+            }
+        };
+        new Chart(document.getElementById('districtBookingsChart'), districtBookingsConfig);
+
+        // 3D Bar Chart Configuration
+        const serviceWorkersConfig = {
+            type: 'bar',
+            data: {
+                labels: {{ service_names|safe }},
+                datasets: [{
+                    label: 'Registered Workers',
+                    data: {{ worker_counts|safe }},
+                    backgroundColor: [
+                        '#7c128a', // Orange
+                        '#390dc2', // Yellow
+                        '#DAF7A6', // Light Green
+                        '#28A745', // Green
+                        '#007BFF', // Blue
+                        '#17A2B8', // Cyan
+                        '#6610F2', // Purple
+                        '#6F42C1', // Violet
+                        '#E83E8C', // Pink
+                        '#DC3545', // Red
+                    ],
+                    borderColor: [
+                        '#C70039', // Dark Red
+                        '#FFC300', // Yellow
+                        '#DAF7A6', // Light Green
+                        '#28A745', // Green
+                        '#007BFF', // Blue
+                        '#17A2B8', // Cyan
+                        '#6610F2', // Purple
+                        '#6F42C1', // Violet
+                        '#E83E8C', // Pink
+                        '#DC3545', // Red
+                    ],
+                    borderWidth: 2, // Adjust the width as needed
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                    }
+                },
+                // Enable 3D effect
+                plugins: {
+                    'chartjs-plugin-3d': {
+                        enabled: true,
+                        perspective: 1000,
+                        rotation: { x: 30, y: 30 },
+                    }
+                }
+            }
+        };
+        new Chart(document.getElementById('serviceWorkersChart'), serviceWorkersConfig);
+    </script>
 </body>
 </html>

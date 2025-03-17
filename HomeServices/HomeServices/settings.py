@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +24,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-3&mnakhy8&h(n)t@51a7!go&pg6a@3*@r66b)221@d7rn7s8+0'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -38,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'myapp',
+    'channels',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -75,27 +81,27 @@ WSGI_APPLICATION = 'HomeServices.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'home_db',
-#         'USER': 'root',
-#         'PASSWORD': '',
-#         'HOST': 'localhost',   # or '127.0.0.1'
-#         'PORT': '3306',        # default MySQL port
-#     }
-# }
-#hosting database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'homedb_afternoon',
-        'USER': 'homedb_afternoon',
-        'PASSWORD': 'b3a1e7818bcf7c229161ab0df699429f1ab01e4d',
-        'HOST': 'nw0a4.h.filess.io',   # or '127.0.0.1'
-        'PORT': '3307',        # default MySQL port
+        'NAME': 'home_db',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',   # or '127.0.0.1'
+        'PORT': '3306',        # default MySQL port
     }
 }
+#hosting database
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'homedb_afternoon',
+#         'USER': 'homedb_afternoon',
+#         'PASSWORD': 'b3a1e7818bcf7c229161ab0df699429f1ab01e4d',
+#         'HOST': 'nw0a4.h.filess.io',   # or '127.0.0.1'
+#         'PORT': '3307',        # default MySQL port
+#     }
+# }
 
 
 
@@ -145,16 +151,45 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'safaphaneefa@gmail.com'
-EMAIL_HOST_PASSWORD = 'cxyn tzgu tzno ersg'
-DEFAULT_FROM_EMAIL = 'safaphaneefa@gmail.com'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
 
-DEBUG =True
+DEBUG = True
 # settings.py
 LOGIN_URL = '/login/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Razorpay settings
+RAZORPAY_API_KEY = os.getenv('RAZORPAY_API_KEY')
+RAZORPAY_SECRET_KEY = os.getenv('RAZORPAY_SECRET_KEY')
+
+# Add these settings
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+
+# Add CSRF settings if needed
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+    # Add your production domains here
+]
+
+# Add Channels configuration
+ASGI_APPLICATION = 'HomeServices.asgi.application'
+
+# Channel layers configuration
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+        # Use this instead if you want to use Redis (recommended for production)
+        # 'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        # 'CONFIG': {
+        #     "hosts": [('127.0.0.1', 6379)],
+        # },
+    },
+}
 
 
 

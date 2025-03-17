@@ -2,6 +2,7 @@ from django.db import models
 from django.core.validators import FileExtensionValidator
 from django.core.validators import MinValueValidator
 from django.core.validators import MaxValueValidator
+from django.utils import timezone
   
     
     
@@ -63,12 +64,26 @@ class Service_Details(models.Model):
 
 def __str__(self):
         return self.service_name
+
+class ServiceList(models.Model):
+    service_detail = models.ForeignKey(Service_Details, on_delete=models.CASCADE, related_name='service_lists')
+    sub_service_name = models.CharField(max_length=150)
+    description = models.TextField()
+    rate = models.DecimalField(max_digits=10, decimal_places=2)
+    image = models.ImageField(upload_to='sub_service_images/', null=True, blank=True)
+
+    def __str__(self):
+        return self.sub_service_name
     
+# HomeServices/myapp/models.py
+
+from django.db import models
 
 class Bookings(models.Model):
     # ForeignKey to associate the booking with a user (worker)
-    user = models.ForeignKey(users, on_delete=models.CASCADE, related_name='bookings')  # Add this line
-    worker=models.ForeignKey(Workers_Details, on_delete=models.CASCADE, related_name='bookings', null=True, blank=True) 
+    user = models.ForeignKey(users, on_delete=models.CASCADE, related_name='bookings')
+    worker = models.ForeignKey(Workers_Details, on_delete=models.CASCADE, related_name='bookings', null=True, blank=True)
+    
     # Fields for Booking Date, ensuring Sundays are not selectable
     booking_date = models.DateField()
 
@@ -83,10 +98,33 @@ class Bookings(models.Model):
     booking_time = models.TimeField()
 
     # Field for Work Type
-    work = models.CharField(max_length=100)  # Store the type of work (e.g., electrician, plumber, etc.)
+    work = models.CharField(max_length=100)
+
+    # Update status choices
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('timer_requested', 'Timer Requested'),
+        ('in_progress', 'In Progress'),
+        ('stop_requested', 'Stop Requested'),
+        ('completed', 'Completed'),
+        ('billed', 'Billed')
+    ]
+    
+    status = models.CharField(
+        max_length=20, 
+        choices=STATUS_CHOICES,
+        default='pending'
+    )
+    
+    timer_start = models.DateTimeField(null=True, blank=True)
+    timer_end = models.DateTimeField(null=True, blank=True)
+
+    # New field for tracking working time
+    working_time = models.DurationField(null=True, blank=True)  # To store the total working time
 
     # Additional fields
-    phone_number = models.CharField(max_length=15, blank=True, null=True)  # Optional phone number
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
     work_description = models.TextField()
 
     # Timestamps
@@ -96,6 +134,7 @@ class Bookings(models.Model):
     def __str__(self):
         return f"{self.work} Booking on {self.booking_date} at {self.booking_time} by {self.user.username}"
     
+        
 from django.utils import timezone
 
 class Announcement(models.Model):
@@ -106,3 +145,39 @@ class Announcement(models.Model):
 
     def is_active(self):
         return timezone.now() < self.expires_at
+    
+
+class Payment(models.Model):
+    booking = models.ForeignKey(Bookings, on_delete=models.CASCADE, related_name='payments')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    rate_per_hour = models.DecimalField(max_digits=10, decimal_places=2)
+    total_hours = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_date = models.DateTimeField(auto_now_add=True)
+    payment_status = models.CharField(max_length=20, default='pending')  # pending, completed, failed
+    additional_notes = models.TextField(blank=True, null=True)
+    razorpay_order_id = models.CharField(max_length=100, null=True, blank=True)
+    razorpay_payment_id = models.CharField(max_length=100, null=True, blank=True)
+    
+    # New fields for work completion media
+    work_completion_image = models.ImageField(upload_to='work_completion_images/', null=True, blank=True)
+    work_completion_video = models.FileField(upload_to='work_completion_videos/', null=True, blank=True)
+
+    def __str__(self):
+        return f"Payment for Booking {self.booking.id} - ₹{self.amount}"
+    
+
+
+
+class WorkerLocation(models.Model):
+    worker = models.ForeignKey('Workers_Details', on_delete=models.CASCADE)
+    booking = models.ForeignKey('Bookings', on_delete=models.CASCADE)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    is_sharing = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        get_latest_by = 'timestamp'
+
+    def __str__(self):
+        return f"Location of {self.worker.worker_name} for booking {self.booking.id}"

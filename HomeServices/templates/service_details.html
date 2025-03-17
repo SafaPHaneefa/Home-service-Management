@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ service.service_name }} Details</title>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>{{ service.service_name }} Details</h1>
+
+        <h2>Available Sub-Services</h2>
+        <div class="row">
+            {% if sub_services %}
+                {% for sub_service in sub_services %}
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        {% if sub_service.image %}
+                            <img src="{{ sub_service.image.url }}" class="card-img-top" alt="{{ sub_service.sub_service_name }}">
+                        {% else %}
+                            <img src="{% static 'img/default-image.jpg' %}" class="card-img-top" alt="Default Image">  <!-- Default image if none exists -->
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ sub_service.sub_service_name }}</h5>
+                            <p class="card-text">{{ sub_service.description }}</p>
+                            <p class="card-text">Rate: ₹{{ sub_service.rate }}</p>
+                            <a href="#" class="btn btn-primary">Book Now</a>  <!-- Placeholder for booking link -->
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12">
+                    <p>No sub-services available for this service.</p>
+                </div>
+            {% endif %}
+        </div>
+        <a href="{% url 'service' %}" class="btn btn-primary">Back</a>
+    </div>
+</body>
+</html>

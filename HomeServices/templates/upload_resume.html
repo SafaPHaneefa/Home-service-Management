@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Resume and Extract Details</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f8fb;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #0c6470;
+            margin-bottom: 20px;
+        }
+
+        form {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        label {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #0c6470;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #f9f9f9;
+            cursor: pointer;
+        }
+
+        button {
+            background: #0c6470;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background: #08848f;
+        }
+
+        .result {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            margin: 20px auto;
+            text-align: left;
+        }
+
+        .result h3 {
+            color: #0c6470;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            font-size: 15px;
+            color: #444;
+        }
+
+        .detail:last-child {
+            border-bottom: none;
+        }
+
+        .detail strong {
+            color: #0c6470;
+        }
+
+        .dashboard-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            text-decoration: none;
+            color: #0c6470;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .dashboard-link:hover {
+            color: #08848f;
+        }
+
+    </style>
+</head>
+<body>
+    <img src="{% static 'img/hstar.png' %}" class="me-3" style="height: 100px; width:160px;">            
+    <h2>Upload Resume and Extract Details</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="resume">Upload Resume:</label>
+        <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx" required>
+        <button type="submit">Upload and Extract</button>
+    </form>
+
+    {% if details %}
+        <div class="result">
+            <h3>Extracted Details:</h3>
+            <div class="detail"><strong>Name:</strong> <span>{{ details.name }}</span></div>
+            <div class="detail"><strong>Email:</strong> <span>{{ details.email }}</span></div>
+            <div class="detail"><strong>Phone:</strong> <span>{{ details.phone }}</span></div>
+            <div class="detail"><strong>Qualification:</strong> <span>{{ details.qualification }}</span></div>
+            <div class="detail"><strong>Experience:</strong> <span>{{ details.experience }}</span></div>
+            <div class="detail"><strong>Skills:</strong> <span>{{ details.skills }}</span></div>
+            <div class="detail"><strong>LinkedIn:</strong> <span><a href="{{ details.linkedin }}" target="_blank">{{ details.linkedin }}</a></span></div>
+            <a href="{% url 'admin_dashboard' %}" class="dashboard-link">Go to Dashboard</a>
+        </div>
+    {% endif %}
+</body>
+</html>

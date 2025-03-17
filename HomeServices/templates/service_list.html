@@ -1,0 +1,30 @@
+<!-- HomeServices/templates/service_list.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Service List</title>
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>Available Services</h1>
+        <div class="row">
+            {% for service in services %}
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <img src="{{ service.service_image.url }}" class="card-img-top" alt="{{ service.service_name }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ service.service_name }}</h5>
+                        <p class="card-text">{{ service.description }}</p>
+                        <p class="card-text">Price: ₹{{ service.price }}</p>
+                        <a href="{% url 'service_details' service.id %}" class="btn btn-primary">View Sub-Services</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

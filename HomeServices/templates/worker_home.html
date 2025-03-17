@@ -50,6 +50,10 @@
             color: hsl(65, 99%, 52%);
         }
     </style>
+    <!-- Add these for location tracking -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="{% static 'js/worker-location.js' %}"></script>
 </head>
 
 
@@ -61,24 +65,6 @@
     <!-- Spinner End -->
 
     <!-- Topbar Start -->
-    <div class="container-fluid bg-light p-0">
-        <div class="row gx-0 d-none d-lg-flex">
-            <div class="col-lg-7 px-5 text-start">
-                <div class="h-100 d-inline-flex align-items-center border-start border-end px-3">
-                    <small class="fa fa-phone-alt me-2"></small>
-                    <small>+012 345 6789</small>
-                </div>
-                <div class="h-100 d-inline-flex align-items-center border-end px-3">
-                    <small class="far fa-envelope-open me-2"></small>
-                    <small>info@example.com</small>
-                </div>
-                <div class="h-100 d-inline-flex align-items-center border-end px-3">
-                    <small class="far fa-clock me-2"></small>
-                    <small>Mon - Fri : 09 AM - 09 PM</small>
-                </div>
-            </div>
-        </div>
-    </div>
     <!-- Topbar End -->
 
     <!-- Navbar Start -->
@@ -135,6 +121,9 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'worker_bookings' %}">View Bookings</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'payment_history' %}">Payment History</a>
                         </li>
                         </li>
                     </ul>
@@ -650,3 +639,16 @@
 
 <!-- Template Javascript -->
 <script src="{% static 'js/main.js' %}"></script>
+
+<script>
+    // Initialize location tracking if there's an active booking
+    {% if active_booking %}
+    document.addEventListener('DOMContentLoaded', function() {
+        const locationUpdater = new WorkerLocationUpdater(
+            '{{ worker.id }}',
+            '{{ active_booking.id }}'
+        );
+        locationUpdater.startUpdating();
+    });
+    {% endif %}
+</script>

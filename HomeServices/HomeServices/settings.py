@@ -81,27 +81,27 @@ WSGI_APPLICATION = 'HomeServices.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'home_db',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',   # or '127.0.0.1'
-        'PORT': '3306',        # default MySQL port
-    }
-}
-#hosting database
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'homedb_fourthsky',
-#         'USER': 'homedb_fourthsky',
-#         'PASSWORD': '7c25a6787de224ced52374216a3936faee76ea82',
-#         'HOST': '4cdyv.h.filess.io',   # or '127.0.0.1'
-#         'PORT': '3307',        # default MySQL port
+#         'NAME': 'home_db',
+#         'USER': 'root',
+#         'PASSWORD': '',
+#         'HOST': 'localhost',   # or '127.0.0.1'
+#         'PORT': '3306',        # default MySQL port
 #     }
 # }
+#hosting database
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'homedb_fourthsky',
+        'USER': 'homedb_fourthsky',
+        'PASSWORD': '7c25a6787de224ced52374216a3936faee76ea82',
+        'HOST': '4cdyv.h.filess.io',   # or '127.0.0.1'
+        'PORT': '3307',        # default MySQL port
+    }
+}
 
 
 
